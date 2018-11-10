@@ -1,0 +1,14 @@
+#pragma once
+
+#ifndef GPU_DEBUG_CONFIGURATION
+#define GPU_DEBUG_CONFIGURATION
+
+#define GPU_DEBUG_ALL
+
+#define GPU_DEBUG
+
+#ifdef GPU_DEBUG_ALL
+	#define GPU_DEBUG_ARRAY
+#endif // GPU_DEBUG_ALL
+
+#endif // GPU_DEBUG_CONFIGURATION
