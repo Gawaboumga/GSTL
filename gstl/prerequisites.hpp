@@ -1,12 +1,18 @@
 #ifndef GPU_PREREQUISITES_HPP
 #define GPU_PREREQUISITES_HPP
 
+#include <gstl/assert.hpp>
+#include <gstl/debug_configuration.hpp>
+
 #include <cooperative_groups.h>
 
-#include <assert.hpp>
-#include <debug_configuration.hpp>
-
 #include <cstdint>
+
+#define GPU_CONSTEXPR constexpr
+#define GPU_DEVICE __device__
+#define GPU_GLOBAL __global__
+#define GPU_HOST __host__
+#define GPU_SHARED __shared__
 
 namespace gpu
 {
@@ -16,20 +22,28 @@ namespace gpu
 	using UI32 = std::uint32_t;
 	using UI64 = std::uint64_t;
 
+	using diff_t = I32;
 	using ptrdiff_t = I32;
 	using size_t = I32;
 
-	using Block = cooperative_groups::thread_block;
+	using block_t = cooperative_groups::thread_block;
 	template <int tile_sz>
-	using Warp = cooperative_groups::thread_block_tile<tile_sz>;
+	using block_tile_t = cooperative_groups::thread_block_tile<tile_sz>;
+
+	block_t this_thread_block()
+	{
+		return cooperative_groups::this_thread_block();
+	}
+
+	template <int tile_sz>
+	block_tile_t<tile_sz> tiled_partition(block_t block)
+	{
+		return cooperative_groups::tiled_partition<tile_sz>(block);
+	}
 
 	static constexpr I32 MAX_NUMBER_OF_THREADS_PER_WARP = 32u;
 	static constexpr I32 MAX_NUMBER_OF_WARPS_PER_BLOCK = 32u;
 	static constexpr I32 MAX_NUMBER_OF_THREADS_PER_BLOCK = MAX_NUMBER_OF_WARPS_PER_BLOCK * MAX_NUMBER_OF_THREADS_PER_WARP;
-
-	#define GPU_CONSTEXPR constexpr
-	#define GPU_DEVICE __device__
-	#define GPU_HOST __host__
 }
 
 #endif // GPU_PREREQUISITES_HPP

@@ -1,59 +1,59 @@
-#include <utility/iterator.cuh>
+#include <gstl/utility/iterator.cuh>
 
 namespace gpu
 {
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator<Iterator>::reverse_iterator()
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>::reverse_iterator()
 	{
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator<Iterator>::reverse_iterator(iterator_type x) :
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>::reverse_iterator(iterator_type x) :
 		current(x)
 	{
 	}
 
 	template <class Iterator>
 	template <class U>
-	GPU_DEVICE reverse_iterator<Iterator>::reverse_iterator(const iterator_type<U>& other) :
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>::reverse_iterator(const reverse_iterator<U>& other) :
 		current(other.base())
 	{
 	}
 
 	template <class Iterator>
-	GPU_DEVICE typename reverse_iterator<Iterator>::iterator_type reverse_iterator<Iterator>::base() const
+	GPU_DEVICE GPU_CONSTEXPR typename reverse_iterator<Iterator>::iterator_type reverse_iterator<Iterator>::base() const
 	{
 		return current;
 	}
 
 	template <class Iterator>
-	GPU_DEVICE typename reverse_iterator<Iterator>::reference reverse_iterator<Iterator>::operator*() const
+	GPU_DEVICE GPU_CONSTEXPR typename reverse_iterator<Iterator>::reference reverse_iterator<Iterator>::operator*() const
 	{
 		Iterator tmp = current;
 		return *--tmp;
 	}
 
 	template <class Iterator>
-	GPU_DEVICE typename reverse_iterator<Iterator>::pointer reverse_iterator<Iterator>::operator->() const
+	GPU_DEVICE GPU_CONSTEXPR typename reverse_iterator<Iterator>::pointer reverse_iterator<Iterator>::operator->() const
 	{
 		return std::addressof(operator*());
 	}
 
 	template <class Iterator>
-	GPU_DEVICE typename reverse_iterator<Iterator>::reference reverse_iterator<Iterator>::operator[](difference_type n) const
+	GPU_DEVICE GPU_CONSTEXPR typename reverse_iterator<Iterator>::reference reverse_iterator<Iterator>::operator[](difference_type n) const
 	{
 		return *(*this + n);
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator& reverse_iterator<Iterator>::operator++()
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>& reverse_iterator<Iterator>::operator++()
 	{
 		--current;
 		return *this;
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator reverse_iterator<Iterator>::operator++(int)
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> reverse_iterator<Iterator>::operator++(int)
 	{
 		reverse_iterator tmp(*this);
 		--current;
@@ -61,27 +61,27 @@ namespace gpu
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator& reverse_iterator<Iterator>::operator+=(difference_type n)
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>& reverse_iterator<Iterator>::operator+=(difference_type n)
 	{
 		current -= n;
 		return *this;
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator reverse_iterator<Iterator>::operator+(difference_type n) const
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> reverse_iterator<Iterator>::operator+(difference_type n) const
 	{
 		return reverse_iterator(current - n),
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator& reverse_iterator<Iterator>::operator--()
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>& reverse_iterator<Iterator>::operator--()
 	{
 		++current;
 		return *this;
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator reverse_iterator<Iterator>::operator--(int)
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> reverse_iterator<Iterator>::operator--(int)
 	{
 		reverse_iterator tmp(*this);
 		++current;
@@ -89,21 +89,21 @@ namespace gpu
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator& reverse_iterator<Iterator>::operator-=(difference_type n)
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>& reverse_iterator<Iterator>::operator-=(difference_type n)
 	{
 		current += n;
 		return *this;
 	}
 
 	template <class Iterator>
-	GPU_DEVICE reverse_iterator reverse_iterator<Iterator>::operator-(difference_type n) const
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> reverse_iterator<Iterator>::operator-(difference_type n) const
 	{
 		return reverse_iterator(current + n),
 	}
 
 	template <class Iterator>
 	template <class U>
-	GPU_DEVICE GPU_CONSTEXPR reverse_iterator& reverse_iterator<Iterator>::operator=(const iterator_type<U>& other)
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>& reverse_iterator<Iterator>::operator=(const reverse_iterator<U>& other)
 	{
 		current = other.base();
 		return *this;
@@ -152,7 +152,7 @@ namespace gpu
 	}
 
 	template <class Iterator>
-	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> operator+(difference_type n, const reverse_iterator<Iterator>& it)
+	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> operator+(typename reverse_iterator<Iterator>::difference_type n, const reverse_iterator<Iterator>& it)
 	{
 		return reverse_iterator<Iterator>(it.base() - n);
 	}
@@ -161,5 +161,29 @@ namespace gpu
 	GPU_DEVICE GPU_CONSTEXPR auto operator-(const reverse_iterator<Iterator1>& lhs, const reverse_iterator<Iterator2>& rhs) -> decltype(rhs.base() - lhs.base())
 	{
 		return rhs.base() - lhs.base();
+	}
+
+	namespace
+	{
+		template <class InputIt>
+		inline GPU_DEVICE GPU_CONSTEXPR typename std::iterator_traits<InputIt>::difference_type distance(InputIt first, InputIt last, std::input_iterator_tag)
+		{
+			typename std::iterator_traits<InputIt>::difference_type r(0);
+			for (; first != last; ++first)
+				++r;
+			return r;
+		}
+
+		template <class RandomIt>
+		inline GPU_DEVICE GPU_CONSTEXPR typename std::iterator_traits<RandomIt>::difference_type distance(RandomIt first, RandomIt last, std::random_access_iterator_tag)
+		{
+			return last - first;
+		}
+	}
+
+	template <class InputIt>
+	GPU_DEVICE GPU_CONSTEXPR typename std::iterator_traits<InputIt>::difference_type distance(InputIt first, InputIt last)
+	{
+		return distance(first, last, typename std::iterator_traits<InputIt>::iterator_category());
 	}
 }

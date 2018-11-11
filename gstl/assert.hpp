@@ -3,7 +3,7 @@
 #ifndef GPU_ASSERT
 #define GPU_ASSERT
 
-#include <debug_configuration.hpp>
+#include <gstl/debug_configuration.hpp>
 
 #include <cassert>
 #include <cstdio>

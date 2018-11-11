@@ -3,8 +3,8 @@
 #ifndef GPU_CONTAINERS_ARRAY_HPP
 #define GPU_CONTAINERS_ARRAY_HPP
 
-#include <prerequisites.hpp>
-#include <utility/iterator.cuh>
+#include <gstl/prerequisites.hpp>
+#include <gstl/utility/iterator.cuh>
 
 namespace gpu
 {
@@ -20,8 +20,8 @@ namespace gpu
 		using const_pointer = const value_type*;
 		using iterator = value_type*;
 		using const_iterator = const value_type*;
-		using reverse_iterator = reverse_iterator<iterator>;
-		using const_reverse_iterator = reverse_iterator<const_iterator>;
+		using reverse_iterator = gpu::reverse_iterator<iterator>;
+		using const_reverse_iterator = gpu::reverse_iterator<const_iterator>; // "gpu::" To avoid clash name with previous using
 
 		GPU_DEVICE GPU_CONSTEXPR iterator begin();
 		GPU_DEVICE GPU_CONSTEXPR const_iterator begin() const;
@@ -57,6 +57,6 @@ namespace gpu
 	};
 }
 
-#include <containers/array.cu>
+#include <gstl/containers/array.cu>
 
 #endif // GPU_CONTAINERS_ARRAY_HPP
