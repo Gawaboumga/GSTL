@@ -22,7 +22,7 @@ namespace gpu
 	using UI32 = std::uint32_t;
 	using UI64 = std::uint64_t;
 
-	using diff_t = I32;
+	using offset_t = I32;
 	using ptrdiff_t = I32;
 	using size_t = I32;
 
@@ -30,13 +30,13 @@ namespace gpu
 	template <int tile_sz>
 	using block_tile_t = cooperative_groups::thread_block_tile<tile_sz>;
 
-	block_t this_thread_block()
+	GPU_DEVICE block_t this_thread_block()
 	{
 		return cooperative_groups::this_thread_block();
 	}
 
 	template <int tile_sz>
-	block_tile_t<tile_sz> tiled_partition(block_t block)
+	GPU_DEVICE block_tile_t<tile_sz> tiled_partition(block_t block)
 	{
 		return cooperative_groups::tiled_partition<tile_sz>(block);
 	}

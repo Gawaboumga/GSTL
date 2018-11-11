@@ -70,7 +70,7 @@ namespace gpu
 	template <class Iterator>
 	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> reverse_iterator<Iterator>::operator+(difference_type n) const
 	{
-		return reverse_iterator(current - n),
+		return reverse_iterator(current - n);
 	}
 
 	template <class Iterator>
@@ -98,7 +98,7 @@ namespace gpu
 	template <class Iterator>
 	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator> reverse_iterator<Iterator>::operator-(difference_type n) const
 	{
-		return reverse_iterator(current + n),
+		return reverse_iterator(current + n);
 	}
 
 	template <class Iterator>

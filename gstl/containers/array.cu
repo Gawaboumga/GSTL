@@ -120,18 +120,18 @@ namespace gpu
 	GPU_DEVICE GPU_CONSTEXPR typename array<T, N>::reference array<T, N>::operator[](size_type n)
 	{
 	#ifdef GPU_DEBUG_ARRAY
-		ENSURE(pos < size());
+		ENSURE(n < size());
 	#endif // GPU_DEBUG_ARRAY
-		return m_elems[pos];
+		return m_elems[n];
 	}
 
 	template <typename T, unsigned int N>
 	GPU_DEVICE GPU_CONSTEXPR typename array<T, N>::const_reference array<T, N>::operator[](size_type n) const
 	{
 	#ifdef GPU_DEBUG_ARRAY
-		ENSURE(pos < size());
+		ENSURE(n < size());
 	#endif // GPU_DEBUG_ARRAY
-		return m_elems[pos];
+		return m_elems[n];
 	}
 
 	template <typename T, unsigned int N>
