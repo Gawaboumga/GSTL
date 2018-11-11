@@ -63,7 +63,7 @@ namespace detail {
 
 template<typename Fun>
 struct is_function_ptr: std::integral_constant<bool,
-    std::is_pointer<Fun>::value and std::is_function<typename std::remove_pointer<Fun>::type>::value> { };
+    std::is_pointer<Fun>::value && std::is_function<typename std::remove_pointer<Fun>::type>::value> { };
 
 inline void collect_argument_addresses(void** collected_addresses) { }
 
