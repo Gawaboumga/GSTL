@@ -118,7 +118,7 @@ inline void enqueue_launch(
 	;
 #else
 {
-	static_assert(std::is_function<KernelFunction>::value or
+	static_assert(std::is_function<KernelFunction>::value ||
 	    (detail::is_function_ptr<KernelFunction>::value),
 	    "Only a bona fide function can be a CUDA kernel and be launched; "
 	    "you were attempting to enqueue a launch of something other than a function");
@@ -139,11 +139,8 @@ inline void enqueue_launch(
 		// a bit of useless work here. We could have done exactly the same thing
 		// for the non-cooperative case, mind you.
 
-		void* argument_ptrs[sizeof...(KernelParameters)];
-		// fill the argument array with our parameters. Yes, the use
-		// of the two terms is confusing here and depends on how you
-		// look at things.
-		detail::collect_argument_addresses(argument_ptrs, parameters...);
+		void* argument_ptrs[sizeof...(KernelParameters) == 0 ? 1 : sizeof...(KernelParameters)];
+		detail::collect_argument_addresses(argument_ptrs, std::forward<KernelParameters>(parameters)...);
 		auto status = cudaLaunchCooperativeKernel(
 			(const void*) kernel_function,
 			launch_configuration.grid_dimensions,

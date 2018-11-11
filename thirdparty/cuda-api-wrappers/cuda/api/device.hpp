@@ -820,7 +820,7 @@ public:
 	template <
 		bool AssumedCurrentCopy = AssumedCurrent,
 		typename = typename std::enable_if<AssumedCurrentCopy == detail::assume_device_is_current>::type>
-	operator device_t<not AssumedCurrentCopy>()
+	operator device_t<!AssumedCurrentCopy>()
 	{
 		return device_t<detail::do_not_assume_device_is_current> { id() };
 	}

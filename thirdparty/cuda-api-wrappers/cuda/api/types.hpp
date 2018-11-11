@@ -113,11 +113,11 @@ struct dimensions_t // this almost-inherits dim3
 
 constexpr inline bool operator==(const dim3& lhs, const dim3& rhs) noexcept
 {
-	return lhs.x == rhs.x and lhs.y == rhs.y and lhs.z == rhs.z;
+	return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
 }
 constexpr inline bool operator==(const dimensions_t& lhs, const dimensions_t& rhs) noexcept
 {
-	return lhs.x == rhs.x and lhs.y == rhs.y and lhs.z == rhs.z;
+	return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
 }
 
 /**
@@ -164,10 +164,7 @@ inline launch_configuration_t make_launch_config(
 
 inline bool operator==(const launch_configuration_t lhs, const launch_configuration_t& rhs) noexcept
 {
-	return
-		lhs.grid_dimensions    == rhs.grid_dimensions    and
-		lhs.block_dimensions   == rhs.block_dimensions   and
-		lhs.dynamic_shared_memory_size == rhs.dynamic_shared_memory_size;
+	return lhs.grid_dimensions == rhs.grid_dimensions && lhs.block_dimensions == rhs.block_dimensions && lhs.dynamic_shared_memory_size == rhs.dynamic_shared_memory_size;
 }
 
 /**

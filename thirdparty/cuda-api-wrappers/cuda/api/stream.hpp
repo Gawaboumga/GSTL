@@ -498,9 +498,9 @@ public: // operators
 	// TODO: Do we really want to allow assignments? Hmm... probably not, it's
 	// too risky - someone might destroy one of the streams and use the others
 	stream_t& operator=(const stream_t<AssumesDeviceIsCurrent>& other) = delete;
-	stream_t& operator=(const stream_t<not AssumesDeviceIsCurrent>& other) = delete;
+	stream_t& operator=(const stream_t<!AssumesDeviceIsCurrent>& other) = delete;
 	stream_t& operator=(stream_t<AssumesDeviceIsCurrent>& other) = delete;
-	stream_t& operator=(stream_t<not AssumesDeviceIsCurrent>& other) = delete;
+	stream_t& operator=(stream_t<!AssumesDeviceIsCurrent>& other) = delete;
 
 protected: // constructor
 
@@ -523,12 +523,12 @@ public: // data members - which only exist in lieu of namespaces
 
 inline bool operator==(const stream_t<>& lhs, const stream_t<>& rhs) noexcept
 {
-	return lhs.device_id() == rhs.device_id() and lhs.id() == rhs.id();
+	return lhs.device_id() == rhs.device_id() && lhs.id() == rhs.id();
 }
 
 inline bool operator!=(const stream_t<>& lhs, const stream_t<>& rhs) noexcept
 {
-	return not (lhs == rhs);
+	return !(lhs == rhs);
 }
 
 namespace stream {

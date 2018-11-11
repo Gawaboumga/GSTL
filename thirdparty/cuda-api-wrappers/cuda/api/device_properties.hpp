@@ -48,7 +48,7 @@ struct compute_architecture_t {
 
 	bool is_valid() const noexcept
 	{
-		return (major > 0) and (major < 9999); // Picked this up from the CUDA code somwhere
+		return (major > 0) && (major < 9999); // Picked this up from the CUDA code somwhere
 	}
 
 };
@@ -109,7 +109,7 @@ struct compute_capability_t {
 
 	bool is_valid() const
 	{
-		return (major > 0) and (major < 9999) and (minor > 0) and (minor < 9999);
+		return (major > 0) && (major < 9999) && (minor > 0) && (minor < 9999);
 			// Picked this up from the CUDA code somwhere
 	}
 
@@ -121,27 +121,27 @@ struct compute_capability_t {
 
 inline bool operator ==(const compute_capability_t& lhs, const compute_capability_t& rhs) noexcept
 {
-	return lhs.major == rhs.major and lhs.minor == rhs.minor;
+	return lhs.major == rhs.major && lhs.minor == rhs.minor;
 }
 inline bool operator !=(const compute_capability_t& lhs, const compute_capability_t& rhs) noexcept
 {
-	return lhs.major != rhs.major or lhs.minor != rhs.minor;
+	return lhs.major != rhs.major || lhs.minor != rhs.minor;
 }
 inline bool operator <(const compute_capability_t& lhs, const compute_capability_t& rhs) noexcept
 {
-	return lhs.major < rhs.major or (lhs.major == rhs.major and lhs.minor < rhs.minor);
+	return lhs.major < rhs.major || (lhs.major == rhs.major && lhs.minor < rhs.minor);
 }
 inline bool operator <=(const compute_capability_t& lhs, const compute_capability_t& rhs) noexcept
 {
-	return lhs.major < rhs.major or (lhs.major == rhs.major and lhs.minor <= rhs.minor);
+	return lhs.major < rhs.major || (lhs.major == rhs.major && lhs.minor <= rhs.minor);
 }
 inline bool operator >(const compute_capability_t& lhs, const compute_capability_t& rhs) noexcept
 {
-	return lhs.major > rhs.major or (lhs.major == rhs.major and lhs.minor > rhs.minor);
+	return lhs.major > rhs.major || (lhs.major == rhs.major && lhs.minor > rhs.minor);
 }
 inline bool operator >=(const compute_capability_t& lhs, const compute_capability_t& rhs) noexcept
 {
-	return lhs.major > rhs.major or (lhs.major == rhs.major and lhs.minor >= rhs.minor);
+	return lhs.major > rhs.major || (lhs.major == rhs.major && lhs.minor >= rhs.minor);
 }
 
 inline compute_capability_t make_compute_capability(unsigned combined) noexcept
