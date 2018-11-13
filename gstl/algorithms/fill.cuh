@@ -13,7 +13,7 @@ namespace gpu
 	template <class RandomIt, typename T, int tile_size>
 	GPU_DEVICE void fill(block_tile_t<tile_size> g, RandomIt first, RandomIt last, const T& value);
 
-	template <class ForwardIt, class T>
+	template <class ForwardIt, typename T>
 	GPU_DEVICE GPU_CONSTEXPR void fill(ForwardIt first, ForwardIt last, const T& value);
 }
 

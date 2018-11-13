@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
+set(CUDA_BUILD_CUBIN OFF)
+set(CUDA_64_BIT_DEVICE_CODE "ON")
 project(gstl_tests LANGUAGES CXX CUDA)
 
 # C++ related
@@ -19,8 +21,8 @@ set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 # General stuff
 
-set(GSTL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/gstl/")
-set(THIRDPARTY_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/")
+set(GSTL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(THIRDPARTY_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/ " "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/cuda-api-wrappers/")
 set(TEST_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/tests/")
 
 include_directories(${GSTL_INCLUDES} ${THIRDPARTY_INCLUDES} ${TEST_FOLDER})

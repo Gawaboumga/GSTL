@@ -10,7 +10,7 @@ namespace gpu
 	template <class RandomIt1, class RandomIt2, class UnaryOperation>
 	GPU_DEVICE RandomIt2 transform(block_t g, RandomIt1 first, RandomIt1 last, RandomIt2 d_first, UnaryOperation unary_op);
 
-	template <class RandomIt, class RandomIt2, class UnaryOperation, int tile_size>
+	template <class RandomIt1, class RandomIt2, class UnaryOperation, int tile_size>
 	GPU_DEVICE RandomIt2 transform(block_tile_t<tile_size> g, RandomIt1 first, RandomIt1 last, RandomIt2 d_first, UnaryOperation unary_op);
 
 	template <class ForwardIt, class OutputIt, class UnaryOperation>

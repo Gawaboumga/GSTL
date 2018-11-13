@@ -1,14 +1,11 @@
 #pragma once
 
-#ifndef GPU_ASSERT
-#define GPU_ASSERT
+#ifndef GPU_ASSERT_HPP
+#define GPU_ASSERT_HPP
 
-#include <gstl/debug_configuration.hpp>
+#include <gstl/prerequisites.hpp>
 
-#include <cassert>
-#include <cstdio>
-
-__device__ inline void INTERNAL_ENSURE(bool ok, const char* message, const char* file, int line)
+GPU_DEVICE inline void INTERNAL_ENSURE(bool ok, const char* message, const char* file, int line)
 {
 #ifdef GPU_DEBUG
 	if (!ok)
@@ -34,4 +31,4 @@ __device__ inline void INTERNAL_ENSURE(bool ok, const char* message, const char*
 #define MACRO_CHOOSER(...) CHOOSE_FROM_ARG_COUNT(NO_ARG_EXPANDER __VA_ARGS__ ())
 #define ENSURE(...) MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 
-#endif // GPU_ASSERT
+#endif // GPU_ASSERT_HPP

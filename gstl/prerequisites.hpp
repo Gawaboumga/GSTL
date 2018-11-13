@@ -1,18 +1,20 @@
+#pragma once
+
 #ifndef GPU_PREREQUISITES_HPP
 #define GPU_PREREQUISITES_HPP
-
-#include <gstl/assert.hpp>
-#include <gstl/debug_configuration.hpp>
-
-#include <cooperative_groups.h>
-
-#include <cstdint>
 
 #define GPU_CONSTEXPR constexpr
 #define GPU_DEVICE __device__
 #define GPU_GLOBAL __global__
 #define GPU_HOST __host__
 #define GPU_SHARED __shared__
+
+#include <gstl/assert.cuh>
+#include <gstl/debug_configuration.hpp>
+
+#include <cooperative_groups.h>
+
+#include <cstdint>
 
 namespace gpu
 {
@@ -30,13 +32,13 @@ namespace gpu
 	template <int tile_sz>
 	using block_tile_t = cooperative_groups::thread_block_tile<tile_sz>;
 
-	GPU_DEVICE block_t this_thread_block()
+	GPU_DEVICE inline block_t this_thread_block()
 	{
 		return cooperative_groups::this_thread_block();
 	}
 
 	template <int tile_sz>
-	GPU_DEVICE block_tile_t<tile_sz> tiled_partition(block_t block)
+	GPU_DEVICE inline block_tile_t<tile_sz> tiled_partition(block_t block)
 	{
 		return cooperative_groups::tiled_partition<tile_sz>(block);
 	}
