@@ -9,6 +9,7 @@
 
 #ifdef GPU_DEBUG_ALL
 	#define GPU_DEBUG_ARRAY
+	#define GPU_DEBUG_ATOMIC
 #endif // GPU_DEBUG_ALL
 
 #endif // GPU_DEBUG_CONFIGURATION

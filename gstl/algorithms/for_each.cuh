@@ -10,8 +10,8 @@ namespace gpu
 	template <class RandomIt, class UnaryFunction>
 	GPU_DEVICE void for_each(block_t g, RandomIt first, RandomIt last, UnaryFunction unary_op);
 
-	template <class RandomIt, class UnaryFunction, int tile_size>
-	GPU_DEVICE void for_each(block_tile_t<tile_size> g, RandomIt first, RandomIt last, UnaryFunction unary_op);
+	template <class BlockTile, class RandomIt, class UnaryFunction>
+	GPU_DEVICE void for_each(BlockTile g, RandomIt first, RandomIt last, UnaryFunction unary_op);
 
 	template <class ForwardIt, class UnaryFunction>
 	GPU_DEVICE GPU_CONSTEXPR void for_each(ForwardIt first, ForwardIt last, UnaryFunction unary_op);

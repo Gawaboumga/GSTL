@@ -10,8 +10,8 @@ namespace gpu
 	template <class RandomIt, class Generator>
 	GPU_DEVICE void generate(block_t block, RandomIt first, RandomIt last, Generator g);
 
-	template <class RandomIt, class Generator, int tile_size>
-	GPU_DEVICE void generate(block_tile_t<tile_size> warp, RandomIt first, RandomIt last, Generator g);
+	template <class BlockTile, class RandomIt, class Generator>
+	GPU_DEVICE void generate(BlockTile warp, RandomIt first, RandomIt last, Generator g);
 
 	template <class ForwardIt, class Generator>
 	GPU_DEVICE GPU_CONSTEXPR void generate(ForwardIt first, ForwardIt last, Generator g);

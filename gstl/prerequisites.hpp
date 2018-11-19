@@ -29,7 +29,7 @@ namespace gpu
 	using size_t = I32;
 
 	using block_t = cooperative_groups::thread_block;
-	template <int tile_sz>
+	template <unsigned int tile_sz>
 	using block_tile_t = cooperative_groups::thread_block_tile<tile_sz>;
 
 	GPU_DEVICE inline block_t this_thread_block()
@@ -37,7 +37,7 @@ namespace gpu
 		return cooperative_groups::this_thread_block();
 	}
 
-	template <int tile_sz>
+	template <unsigned int tile_sz>
 	GPU_DEVICE inline block_tile_t<tile_sz> tiled_partition(block_t block)
 	{
 		return cooperative_groups::tiled_partition<tile_sz>(block);

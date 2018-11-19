@@ -11,8 +11,8 @@ namespace gpu
 		return equal(g, first1, last1, first2, equal_to<>());
 	}
 
-	template <class RandomIt1, class RandomIt2, int tile_size>
-	GPU_DEVICE bool equal(block_tile_t<tile_size> g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2)
+	template <class BlockTile, class RandomIt1, class RandomIt2>
+	GPU_DEVICE bool equal(BlockTile g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2)
 	{
 		return equal(g, first1, last1, first2, equal_to<>());
 	}
@@ -45,8 +45,8 @@ namespace gpu
 		return result;
 	}
 
-	template <class RandomIt1, class RandomIt2, class BinaryPredicate, int tile_size>
-	GPU_DEVICE bool equal(block_tile_t<tile_size> g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, BinaryPredicate p)
+	template <class BlockTile, class RandomIt1, class RandomIt2, class BinaryPredicate>
+	GPU_DEVICE bool equal(BlockTile g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, BinaryPredicate p)
 	{
 		offset_t len = distance(first1, last1);
 		offset_t thid = g.thread_rank();
@@ -83,8 +83,8 @@ namespace gpu
 		return equal(g, first1, last1, first2, last2, equal_to<>());
 	}
 
-	template <class RandomIt1, class RandomIt2, int tile_size>
-	GPU_DEVICE bool equal(block_tile_t<tile_size> g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, RandomIt2 last2)
+	template <class BlockTile, class RandomIt1, class RandomIt2>
+	GPU_DEVICE bool equal(BlockTile g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, RandomIt2 last2)
 	{
 		return equal(g, first1, last1, first2, last2, equal_to<>());
 	}
@@ -119,8 +119,8 @@ namespace gpu
 		return result;
 	}
 
-	template <class RandomIt1, class RandomIt2, class BinaryPredicate, int tile_size>
-	GPU_DEVICE bool equal(block_tile_t<tile_size> g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, RandomIt2 last2, BinaryPredicate p)
+	template <class BlockTile, class RandomIt1, class RandomIt2, class BinaryPredicate>
+	GPU_DEVICE bool equal(BlockTile g, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2, RandomIt2 last2, BinaryPredicate p)
 	{
 		offset_t len1 = distance(first1, last1);
 		offset_t len2 = distance(first2, last2);

@@ -16,8 +16,8 @@ namespace gpu
 		}
 	}
 
-	template <class RandomIt, class Generator, int tile_size>
-	GPU_DEVICE void generate(block_tile_t<tile_size> warp, RandomIt first, RandomIt last, Generator g)
+	template <class BlockTile, class RandomIt, class Generator>
+	GPU_DEVICE void generate(BlockTile warp, RandomIt first, RandomIt last, Generator g)
 	{
 		offset_t len = distance(first, last);
 		offset_t thid = warp.thread_rank();

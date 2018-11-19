@@ -13,19 +13,20 @@ namespace gpu
 		bool warp_result = all(warp, value);
 		if (warp.thread_rank() == 0)
 			results[warp_id] = warp_result;
-
 		g.sync();
+
 		bool warp_results = true;
 		offset_t number_of_warps = g.size() / MAX_NUMBER_OF_THREADS_PER_WARP;
 		offset_t local_warp_id = g.thread_rank() % MAX_NUMBER_OF_THREADS_PER_WARP;
 		if (local_warp_id < number_of_warps)
 			warp_results = results[local_warp_id];
+		g.sync();
 		
 		return all(warp, warp_results);
 	}
 
-	template <int tile_sz>
-	GPU_DEVICE bool all(block_tile_t<tile_sz> g, bool value)
+	template <class BlockTile>
+	GPU_DEVICE bool all(BlockTile g, bool value)
 	{
 		return g.all(value);
 	}
@@ -46,12 +47,13 @@ namespace gpu
 		offset_t local_warp_id = g.thread_rank() % MAX_NUMBER_OF_THREADS_PER_WARP;
 		if (local_warp_id < number_of_warps)
 			warp_results = results[local_warp_id];
+		g.sync();
 
 		return any(warp, warp_results);
 	}
 
-	template <int tile_sz>
-	GPU_DEVICE bool any(block_tile_t<tile_sz> g, bool value)
+	template <class BlockTile>
+	GPU_DEVICE bool any(BlockTile g, bool value)
 	{
 		return g.any(value);
 	}

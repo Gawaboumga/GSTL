@@ -16,8 +16,8 @@ namespace gpu
 		}
 	}
 
-	template <class RandomIt, class UnaryFunction, int tile_size>
-	GPU_DEVICE void for_each(block_tile_t<tile_size> g, RandomIt first, RandomIt last, UnaryFunction unary_op)
+	template <class BlockTile, class RandomIt, class UnaryFunction>
+	GPU_DEVICE void for_each(BlockTile g, RandomIt first, RandomIt last, UnaryFunction unary_op)
 	{
 		offset_t len = distance(first, last);
 		offset_t thid = g.thread_rank();

@@ -131,6 +131,8 @@ inline void enqueue_launch(
 			launch_configuration.dynamic_shared_memory_size,
 			stream_id
 			>>>(parameters...);
+		auto status = cuda::outstanding_error::get();
+		throw_if_error(status, "Failed to launch kernel");
 	}
 	else {
 #if __CUDACC_VER_MAJOR__ >= 9
