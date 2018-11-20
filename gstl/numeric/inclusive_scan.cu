@@ -2,7 +2,6 @@
 
 #include <gstl/functional/function_object.cuh>
 #include <gstl/numeric/transform_inclusive_scan.cuh>
-#include <gstl/utility/shfl.cuh>
 
 namespace gpu
 {

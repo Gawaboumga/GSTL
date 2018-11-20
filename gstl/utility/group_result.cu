@@ -1,6 +1,6 @@
 #include <gstl/utility/group_result.cuh>
 
-#include <gstl/utility/shfl.cuh>
+#include <gstl/utility/ballot.cuh>
 
 namespace gpu
 {

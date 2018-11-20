@@ -1,7 +1,7 @@
 #include <gstl/numeric/transform_inclusive_scan.cuh>
 
 #include <gstl/functional/function_object.cuh>
-#include <gstl/utility/shfl.cuh>
+#include <gstl/utility/ballot.cuh>
 
 #include <type_traits>
 
