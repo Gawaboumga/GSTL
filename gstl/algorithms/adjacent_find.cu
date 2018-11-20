@@ -32,12 +32,12 @@ namespace gpu
 
 		do
 		{
-			bool result = true;
+			bool result = false;
 			if (offset + thid + 1 < len)
 				result = p(*(first + offset + thid), *(first + offset + thid + 1));
 
 			offset_t index = first_index(g, result);
-			if (index == g.size())
+			if (index != g.size())
 				return first + offset + index;
 
 			offset += g.size();
@@ -55,12 +55,12 @@ namespace gpu
 
 		do
 		{
-			bool result = true;
+			bool result = false;
 			if (offset + thid + 1 < len)
 				result = p(*(first + offset + thid), *(first + offset + thid + 1));
 
 			offset_t index = first_index(g, result);
-			if (index == g.size())
+			if (index != g.size())
 				return first + offset + index;
 
 			offset += g.size();
