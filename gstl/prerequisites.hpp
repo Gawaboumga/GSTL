@@ -9,8 +9,8 @@
 #define GPU_HOST __host__
 #define GPU_SHARED __shared__
 
-#include <gstl/assert.cuh>
 #include <gstl/debug_configuration.hpp>
+#include <gstl/assert.cuh>
 
 #include <cooperative_groups.h>
 

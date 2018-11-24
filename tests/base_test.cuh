@@ -13,5 +13,8 @@ inline bool launch(Function f)
 		{ blocks_per_grid, threads_per_block }
 	);
 
+	auto status = cuda::outstanding_error::get();
+	cuda::throw_if_error(status, "Failed to launch kernel");
+
 	return true;
 }

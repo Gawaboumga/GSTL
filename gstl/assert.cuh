@@ -5,6 +5,9 @@
 
 #include <gstl/prerequisites.hpp>
 
+#include <cassert>
+#include <cstdio>
+
 GPU_DEVICE inline void INTERNAL_ENSURE(bool ok, const char* message, const char* file, int line)
 {
 #ifdef GPU_DEBUG
