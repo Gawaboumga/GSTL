@@ -48,6 +48,27 @@ GPU_GLOBAL void test_inclusive_scan_warp()
 	}
 }
 
+GPU_GLOBAL void test_inclusive_scan_one_value_block()
+{
+	gpu::block_t block = gpu::this_thread_block();
+	int init = 3;
+	gpu::offset_t value = gpu::inclusive_scan(block, 1, init);
+	ENSURE(value == block.thread_rank() + 1 + init);
+}
+
+GPU_GLOBAL void test_inclusive_scan_one_value_warp()
+{
+	gpu::block_t block = gpu::this_thread_block();
+	gpu::block_tile_t<32> warp = gpu::tiled_partition<32>(block);
+
+	if (block.thread_rank() >= warp.size())
+		return;
+
+	int init = 3;
+	gpu::offset_t value = gpu::inclusive_scan(warp, 1, init);
+	ENSURE(value == warp.thread_rank() + 1 + init);
+}
+
 TEST_CASE("INCLUSIVE SCAN", "[INCLUSIVE_SCAN][NUMERIC]")
 {
 	SECTION("BLOCK inclusive_scan")
@@ -64,5 +85,15 @@ TEST_CASE("INCLUSIVE SCAN", "[INCLUSIVE_SCAN][NUMERIC]")
 		CHECK(launch(test_inclusive_scan_warp<256>));
 		CHECK(launch(test_inclusive_scan_warp<2000>));
 		CHECK(launch(test_inclusive_scan_warp<2048>));
+	}
+
+	SECTION("BLOCK inclusive_scan_one_value")
+	{
+		CHECK(launch(test_inclusive_scan_one_value_block));
+	}
+
+	SECTION("WARP inclusive_scan_one_value")
+	{
+		CHECK(launch(test_inclusive_scan_one_value_warp));
 	}
 }

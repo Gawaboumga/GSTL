@@ -145,6 +145,31 @@ namespace gpu
 		}
 	}
 
+	template <class BinaryOperation, typename T>
+	GPU_DEVICE T transform_inclusive_scan(block_t g, T value, BinaryOperation binary_op, T init)
+	{
+		GPU_SHARED array<T, MAX_NUMBER_OF_WARPS_PER_BLOCK> warp_results;
+
+		block_tile_t<MAX_NUMBER_OF_THREADS_PER_WARP> warp = tiled_partition<MAX_NUMBER_OF_THREADS_PER_WARP>(g);
+		offset_t warp_id = g.thread_rank() / warp.size();
+		T result = transform_inclusive_scan(warp, value, binary_op);
+
+		if (warp.size() * (warp_id + 1) - 1 == g.thread_rank())
+			warp_results[warp_id] = result;
+		g.sync();
+
+		if (g.thread_rank() < g.size() / warp.size())
+		{
+			T warp_scan = transform_inclusive_scan(warp, warp_results[warp_id], binary_op, 0);
+			warp_results[g.thread_rank()] = warp_scan;
+		}
+		g.sync();
+
+		if (warp_id != 0)
+			result = binary_op(result, warp_results[warp_id - 1]);
+		return binary_op(result, init);
+	}
+
 	template <class BlockTile, class BinaryOperation, typename T>
 	GPU_DEVICE T transform_inclusive_scan(BlockTile g, T value, BinaryOperation binary_op, T init)
 	{

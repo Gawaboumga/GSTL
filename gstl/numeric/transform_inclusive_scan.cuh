@@ -25,8 +25,11 @@ namespace gpu
 	template <class InputIt, class OutputIt, class BinaryOperation, class UnaryOperation, typename T>
 	GPU_DEVICE GPU_CONSTEXPR OutputIt transform_inclusive_scan(InputIt first, InputIt last, OutputIt d_first, BinaryOperation binary_op, UnaryOperation unary_op, T init);
 
+	template <class BinaryOperation, typename T>
+	GPU_DEVICE T transform_inclusive_scan(block_t g, T value, BinaryOperation binary_op, T init);
+
 	template <class BlockTile, class BinaryOperation, typename T>
-	GPU_DEVICE T transform_inclusive_scan(BlockTile g, T value, BinaryOperation binary_op, T init);
+	GPU_DEVICE T transform_inclusive_scan(BlockTile g, T value, BinaryOperation binary_op, T init = T());
 }
 
 #include <gstl/numeric/transform_inclusive_scan.cu>
