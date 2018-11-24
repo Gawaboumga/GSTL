@@ -74,7 +74,13 @@ namespace gpu
 	// Other
 
 	template <class InputIt>
+	GPU_DEVICE GPU_CONSTEXPR void advance(InputIt& i, typename std::iterator_traits<InputIt>::difference_type n);
+
+	template <class InputIt>
 	GPU_DEVICE GPU_CONSTEXPR typename std::iterator_traits<InputIt>::difference_type distance(InputIt first, InputIt last);
+
+	template <class InputIt>  // constexpr in C++17
+	GPU_DEVICE GPU_CONSTEXPR InputIt next(InputIt x, typename std::iterator_traits<InputIt>::difference_type n = 1);
 }
 
 #include <gstl/utility/iterator.cu>

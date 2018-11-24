@@ -166,6 +166,30 @@ namespace gpu
 	namespace
 	{
 		template <class InputIt>
+		inline GPU_DEVICE GPU_CONSTEXPR void advance(InputIt& it, typename std::iterator_traits<InputIt>::difference_type n, std::input_iterator_tag)
+		{
+			for (; n > 0; --n)
+				++it;
+		}
+
+		template <class BiDirIt>
+		inline GPU_DEVICE GPU_CONSTEXPR void advance(BiDirIt& it, typename std::iterator_traits<BiDirIt>::difference_type n, std::bidirectional_iterator_tag)
+		{
+			if (n >= 0)
+				for (; n > 0; --n)
+					++i;
+			else
+				for (; n < 0; ++n)
+					--i;
+		}
+
+		template <class RandomIt>
+		inline GPU_DEVICE GPU_CONSTEXPR void advance(RandomIt& it, typename std::iterator_traits<RandomIt>::difference_type n, std::random_access_iterator_tag)
+		{
+			it += n;
+		}
+
+		template <class InputIt>
 		inline GPU_DEVICE GPU_CONSTEXPR typename std::iterator_traits<InputIt>::difference_type distance(InputIt first, InputIt last, std::input_iterator_tag)
 		{
 			typename std::iterator_traits<InputIt>::difference_type r(0);
@@ -182,8 +206,21 @@ namespace gpu
 	}
 
 	template <class InputIt>
+	GPU_DEVICE GPU_CONSTEXPR void advance(InputIt& it, typename std::iterator_traits<InputIt>::difference_type n)
+	{
+		return advance(it, n, typename std::iterator_traits<InputIt>::iterator_category());
+	}
+
+	template <class InputIt>
 	GPU_DEVICE GPU_CONSTEXPR typename std::iterator_traits<InputIt>::difference_type distance(InputIt first, InputIt last)
 	{
 		return distance(first, last, typename std::iterator_traits<InputIt>::iterator_category());
+	}
+
+	template <class InputIt>
+	GPU_DEVICE GPU_CONSTEXPR InputIt next(InputIt x, typename std::iterator_traits<InputIt>::difference_type n)
+	{
+		advance(x, n);
+		return x;
 	}
 }
