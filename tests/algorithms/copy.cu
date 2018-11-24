@@ -27,7 +27,7 @@ GPU_GLOBAL void test_copy_if_block()
 	block.sync();
 
 	gpu::copy_if(block, in.begin(), in.end(), out.begin(), [](int v) {
-		return v % 2;
+		return (v % 2) == 0;
 	});
 
 	block.sync();
@@ -54,13 +54,13 @@ GPU_GLOBAL void test_copy_if_warp()
 
 	block.sync();
 
-	if (block.thread_rank() < warp.thread_rank())
+	if (block.thread_rank() < warp.size())
 	{
-		gpu::copy_if(block, in.begin(), in.end(), out.begin(), [](int v) {
-			return v % 2;
+		gpu::copy_if(warp, in.begin(), in.end(), out.begin(), [](int v) {
+			return (v % 2) == 0;
 		});
 	}
-	warp.sync();
+	block.sync();
 
 	ENSURE(gpu::equal(block, out.begin(), out.end(), theoretical_output.begin()));
 }

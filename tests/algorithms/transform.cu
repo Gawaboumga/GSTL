@@ -49,7 +49,7 @@ GPU_GLOBAL void test_transform_warp()
 
 	if (block.thread_rank() < warp.size())
 	{
-		gpu::transform(block, in.begin(), in.end(), out.begin(), [](int v) {
+		gpu::transform(warp, in.begin(), in.end(), out.begin(), [](int v) {
 			return 2 * v;
 		});
 	}
@@ -105,7 +105,7 @@ GPU_GLOBAL void test_transform_binary_warp()
 
 	if (block.thread_rank() < warp.size())
 	{
-		gpu::transform(block, in1.begin(), in1.end(), in2.begin(), out.begin(), [](int x, int y) {
+		gpu::transform(warp, in1.begin(), in1.end(), in2.begin(), out.begin(), [](int x, int y) {
 			return 2 * x + y;
 		});
 	}

@@ -22,7 +22,7 @@ GPU_GLOBAL void test_adjacent_find_block()
 		data[(block_size * 3) / 4] = 2;
 
 	it = gpu::adjacent_find(block, data.begin(), data.end(), gpu::equal_to<>());
-	ENSURE(it == &data[(block_size * 3) / 4]);
+	ENSURE(it == (&data[(block_size * 3) / 4] - 1));
 }
 
 template <unsigned int block_size>
@@ -45,7 +45,7 @@ GPU_GLOBAL void test_adjacent_find_warp()
 		data[(block_size * 3) / 4] = 2;
 
 	it = gpu::adjacent_find(warp, data.begin(), data.end(), gpu::equal_to<>());
-	ENSURE(it == &data[(block_size * 3) / 4]);
+	ENSURE(it == (&data[(block_size * 3) / 4] - 1));
 }
 
 TEST_CASE("ADJACENT_FIND", "[ADJACENT_FIND][ALGORITHM]")

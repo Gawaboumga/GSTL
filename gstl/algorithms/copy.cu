@@ -35,22 +35,25 @@ namespace gpu
 		offset_t offset = 0;
 		offset_t destination_offset = 0;
 
-		while (offset + thid < len)
+		do
 		{
 			offset_t relative_offset = 0;
-			bool is_valid = p(*(first + offset + thid));
+			bool is_valid = false;
+			if (offset + thid < len)
+				is_valid = p(*(first + offset + thid));
 			if (is_valid)
 				relative_offset = 1;
 
 			relative_offset = exclusive_scan(g, relative_offset, 0);
 
 			if (is_valid)
-				*(d_first + offset + relative_offset) = *(first + offset + thid);
+				*(d_first + destination_offset + relative_offset) = *(first + offset + thid);
 			offset += g.size();
+			relative_offset = shfl(g, relative_offset, g.size() - 1) + 1;
 			destination_offset += relative_offset;
-		}
+		} while (offset < len);
 
-		return d_first + len;
+		return d_first + destination_offset;
 	}
 
 	template <class BlockTile, class RandomIt, class ForwardIt, class UnaryPredicate>
@@ -61,22 +64,25 @@ namespace gpu
 		offset_t offset = 0;
 		offset_t destination_offset = 0;
 
-		while (offset + thid < len)
+		do
 		{
 			offset_t relative_offset = 0;
-			bool is_valid = p(*(first + offset + thid));
+			bool is_valid = false;
+			if (offset + thid < len)
+				is_valid = p(*(first + offset + thid));
 			if (is_valid)
 				relative_offset = 1;
 
 			relative_offset = exclusive_scan(g, relative_offset, 0);
 
 			if (is_valid)
-				*(d_first + offset + relative_offset) = *(first + offset + thid);
+				*(d_first + destination_offset + relative_offset) = *(first + offset + thid);
 			offset += g.size();
+			relative_offset = shfl(g, relative_offset, g.size() - 1) + 1;
 			destination_offset += relative_offset;
-		}
+		} while (offset < len);
 
-		return d_first + len;
+		return d_first + destination_offset;
 	}
 
 	template <class InputIt, class OutputIt, class UnaryPredicate>

@@ -48,12 +48,12 @@ namespace gpu
 		offset_t len = distance(first, last);
 		offset_t offset = 0;
 
-		while (offset + g.thread_rank() + 1 < len)
+		while (offset + g.thread_rank() < len)
 		{
 			if (offset == 0 && g.thread_rank() == 0)
 				*d_first = *first;
 			else
-				*(d_first + offset + g.thread_rank()) = op(*(first + offset + g.thread_rank() - 1), *(first + offset + g.thread_rank()));
+				*(d_first + offset + g.thread_rank()) = op(*(first + offset + g.thread_rank()), *(first + offset + g.thread_rank() - 1));
 
 			offset += g.size();
 		}
