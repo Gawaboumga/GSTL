@@ -97,7 +97,7 @@ GPU_GLOBAL void test_shfl_block()
 	gpu::block_t block = gpu::this_thread_block();
 
 	gpu::offset_t result = gpu::shfl(block, block.thread_rank(), 147);
-	ENSURE(result == 146);
+	ENSURE(result == 147);
 }
 
 GPU_GLOBAL void test_shfl_warp()
@@ -109,7 +109,7 @@ GPU_GLOBAL void test_shfl_warp()
 		return;
 
 	gpu::offset_t result = gpu::shfl(warp, warp.thread_rank(), 17);
-	ENSURE(result == 16);
+	ENSURE(result == 17);
 }
 
 TEST_CASE("BALLOT", "[BALLOT][UTILITY]")

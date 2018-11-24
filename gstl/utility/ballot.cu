@@ -44,7 +44,7 @@ namespace gpu
 			results[warp_id] = warp_result;
 		g.sync();
 
-		bool warp_results = true;
+		bool warp_results = false;
 		offset_t number_of_warps = g.size() / MAX_NUMBER_OF_THREADS_PER_WARP;
 		offset_t local_warp_id = g.thread_rank() % MAX_NUMBER_OF_THREADS_PER_WARP;
 		if (local_warp_id < number_of_warps)
@@ -71,17 +71,17 @@ namespace gpu
 
 		offset_t warp_id = g.thread_rank() / MAX_NUMBER_OF_THREADS_PER_WARP;
 		block_tile_t<MAX_NUMBER_OF_THREADS_PER_WARP> warp = tiled_partition<MAX_NUMBER_OF_THREADS_PER_WARP>(g);
-		offset_t warp_result = first_index(warp, value, from % MAX_NUMBER_OF_THREADS_PER_WARP);
+		offset_t warp_result = first_index(warp, value, from % warp.size());
 		if (warp.thread_rank() == 0)
 		{
-			results[warp_id] = warp_result != MAX_NUMBER_OF_THREADS_PER_WARP && warp_id >= from / MAX_NUMBER_OF_THREADS_PER_WARP;
-			indices[warp_id] = warp_result;
+			results[warp_id] = warp_result != warp.size() && warp_id >= from / warp.size();
+			indices[warp_id] = warp_id * warp.size() + warp_result;
 		}
 		g.sync();
 
-		bool warp_results = true;
-		offset_t number_of_warps = g.size() / MAX_NUMBER_OF_THREADS_PER_WARP;
-		offset_t local_warp_id = g.thread_rank() % MAX_NUMBER_OF_THREADS_PER_WARP;
+		bool warp_results = false;
+		offset_t number_of_warps = g.size() / warp.size();
+		offset_t local_warp_id = g.thread_rank() % warp.size();
 		if (local_warp_id < number_of_warps)
 			warp_results = results[local_warp_id];
 		g.sync();
@@ -97,7 +97,10 @@ namespace gpu
 	GPU_DEVICE inline offset_t first_index(BlockTile g, bool value)
 	{
 		unsigned int mask = g.ballot(value);
-		return ffs(mask);
+		if (!mask)
+			return g.size();
+		else
+			return ffs(mask) - 1;
 	}
 
 	template <class BlockTile>
@@ -111,7 +114,10 @@ namespace gpu
 		if (from > 0)
 			mask &= ~((1u << from) - 1u);
 
-		return ffs(mask);
+		if (!mask)
+			return g.size();
+		else
+			return ffs(mask) - 1;
 	}
 
 	template <typename T>
