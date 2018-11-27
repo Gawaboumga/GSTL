@@ -5,6 +5,8 @@
 
 #include <gstl/prerequisites.hpp>
 
+#include <utility>
+
 namespace gpu
 {
 	template <typename T1, typename T2>
