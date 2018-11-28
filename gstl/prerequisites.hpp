@@ -27,6 +27,7 @@ namespace gpu
 	using offset_t = I32;
 	using ptrdiff_t = I32;
 	using size_t = I32;
+	using uintptr_t = std::uintptr_t;
 
 	using block_t = cooperative_groups::thread_block;
 	template <unsigned int tile_sz>
