@@ -16,8 +16,8 @@ GPU_GLOBAL void test_binary_search_block()
 
 	int value = 5;
 	gpu::fill(block, in.begin(), in.end(), value);
+	block.sync();
 	gpu::fill(block, &in[(block_size * 3) / 4], in.end(), value + 1);
-
 	block.sync();
 
 	auto it = gpu::lower_bound(block, in.begin(), in.end(), value + 1);
@@ -36,8 +36,8 @@ GPU_GLOBAL void test_binary_search_warp()
 
 	int value = 5;
 	gpu::fill(block, in.begin(), in.end(), value);
+	block.sync();
 	gpu::fill(block, &in[(block_size * 3) / 4], in.end(), value + 1);
-
 	block.sync();
 
 	auto it = gpu::lower_bound(warp, in.begin(), in.end(), value + 1);
