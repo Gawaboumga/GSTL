@@ -42,8 +42,14 @@ namespace gpu
 		GPU_DEVICE static void construct_range(Thread g, Allocator& a, T* p, ForwardIt first, ForwardIt last);
 
 		GPU_DEVICE static void deallocate(Allocator& a, pointer p, size_type n);
+		template <class Thread>
+		GPU_DEVICE static void deallocate(Thread g, Allocator& a, pointer p, size_type n);
 		template <class T>
 		GPU_DEVICE static void destroy(Allocator& a, T* p);
+		template <class InputIt>
+		GPU_DEVICE static void destroy(Allocator& a, InputIt first, InputIt last);
+		template <class Thread, class ForwardIt>
+		GPU_DEVICE static void destroy(Thread g, Allocator& a, ForwardIt first, ForwardIt last);
 
 		GPU_DEVICE static size_type max_size(const Allocator& a);
 	};

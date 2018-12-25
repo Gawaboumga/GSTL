@@ -22,14 +22,14 @@ namespace gpu
 
 			auto len = distance(first, last);
 			offset_t offset = 0;
-			while (offset < len)
+			while (offset + g.thread_rank() < len)
 			{
 				f(first + g.thread_rank());
 				first += g.size();
 				offset += g.size();
 			}
 
-			return first + len;
+			return copy_first + len;
 		}
 
 		template <class InputIt, class Size, class CreationFunction>
@@ -47,14 +47,15 @@ namespace gpu
 			auto copy_first = first;
 
 			offset_t offset = 0;
-			while (offset < n)
+			offset_t tmp = offset + g.thread_rank();
+			while (offset + g.thread_rank() < n)
 			{
-				f(first + g.thread_rank());
-				first += g.size();
+				f(copy_first + g.thread_rank());
+				copy_first += g.size();
 				offset += g.size();
 			}
 
-			return copy_first + n;
+			return first + n;
 		}
 
 		template <class InputIt, class ForwardIt, class CreationFunction>
@@ -73,7 +74,7 @@ namespace gpu
 
 			auto len = distance(first, last);
 			offset_t offset = 0;
-			while (offset < len)
+			while (offset + g.thread_rank() < len)
 			{
 				f(first + g.thread_rank(), d_first + g.thread_rank());
 				first += g.size();
@@ -99,7 +100,7 @@ namespace gpu
 			auto copy_d_first = d_first;
 
 			offset_t offset = 0;
-			while (offset < count)
+			while (offset + g.thread_rank() < count)
 			{
 				f(first + g.thread_rank(), d_first + g.thread_rank());
 				first += g.size();

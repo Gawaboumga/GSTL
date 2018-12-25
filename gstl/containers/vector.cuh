@@ -74,6 +74,9 @@ namespace gpu
 			GPU_DEVICE const_reference back() const;
 
 			GPU_DEVICE size_type capacity() const noexcept;
+			GPU_DEVICE void clear();
+			template <class Thread>
+			GPU_DEVICE void clear(Thread g);
 
 			GPU_DEVICE value_type* data() noexcept;
 			GPU_DEVICE const value_type* data() const noexcept;

@@ -193,9 +193,6 @@ namespace gpu
 		post_condition();
 
 	#if defined(GPU_DEBUG_ALLOCATED_MEMORY)
-		#if defined(GPU_DEBUG_OUT_OF_RANGE)
-			ENSURE(m_start + pos < m_end);
-		#endif // GPU_DEBUG_OUT_OF_RANGE
 		return allocated_memory(m_start + pos, m_end);
 	#else
 		return allocated_memory(m_ptr + pos);
@@ -208,9 +205,6 @@ namespace gpu
 		post_condition();
 
 	#if defined(GPU_DEBUG_ALLOCATED_MEMORY)
-		#if defined(GPU_DEBUG_OUT_OF_RANGE)
-			ENSURE(m_start + pos < m_end);
-		#endif // GPU_DEBUG_OUT_OF_RANGE
 		m_start += pos;
 		return *this;
 	#else

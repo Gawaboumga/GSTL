@@ -128,7 +128,9 @@ namespace gpu
 			g.sync();
 
 			uninitialized_fill_n(g, m_begin, count, value);
-			m_end = m_begin + count;
+			if (g.thread_rank() == 0)
+				m_end = m_begin + count;
+			g.sync();
 		}
 	}
 
@@ -381,6 +383,22 @@ namespace gpu
 	}
 
 	template <typename T, class Allocator>
+	GPU_DEVICE void vector<T, Allocator>::clear()
+	{
+		alloc_traits::destroy(get_allocator(), m_begin, m_end);
+		m_end = m_begin;
+	}
+
+	template <typename T, class Allocator>
+	template <class Thread>
+	GPU_DEVICE void vector<T, Allocator>::clear(Thread g)
+	{
+		alloc_traits::destroy(g, get_allocator(), m_begin, m_end);
+		if (g.thread_rank() == 0)
+			m_end = m_begin;
+	}
+
+	template <typename T, class Allocator>
 	GPU_DEVICE typename vector<T, Allocator>::value_type* vector<T, Allocator>::data() noexcept
 	{
 		return m_begin;
@@ -413,13 +431,14 @@ namespace gpu
 	{
 		if (size() + g.size() < capacity())
 		{
-			alloc_traits::construct(g, get_allocator(), to_pointer(m_end) + g.thread_rank(), std::forward<Args>(args)...);
-			advance(g, m_end);
+			alloc_traits::construct(get_allocator(), to_pointer(m_end) + g.thread_rank(), std::forward<Args>(args)...);
+			if (g.thread_rank() == 0)
+				m_end += g.size();
 		}
 		else
 			insert_value_end(g, std::forward<Args>(args)...);
 
-		return back();
+		return *(to_pointer(m_end) - g.size() + g.thread_rank());
 	}
 
 	template <typename T, class Allocator>
@@ -428,7 +447,7 @@ namespace gpu
 	{
 		if (size() + g.size() < capacity())
 		{
-			alloc_traits::construct(g, get_allocator(), to_pointer(m_end) + g.thread_rank(), std::forward<Args>(args)...);
+			alloc_traits::construct(get_allocator(), to_pointer(m_end) + g.thread_rank(), std::forward<Args>(args)...);
 			advance(g, m_end);
 		}
 		else
@@ -518,7 +537,7 @@ namespace gpu
 	{
 		if (size() + g.size() < capacity())
 		{
-			alloc_traits::construct(g, get_allocator(), to_pointer(m_end) + g.thread_rank(), value);
+			alloc_traits::construct(get_allocator(), to_pointer(m_end) + g.thread_rank(), value);
 			advance(m_end, g.size());
 		}
 		else
@@ -543,7 +562,7 @@ namespace gpu
 	{
 		if (size() + g.size() < capacity())
 		{
-			alloc_traits::construct(g, get_allocator(), to_pointer(m_end) + g.thread_rank(), std::move(value));
+			alloc_traits::construct(get_allocator(), to_pointer(m_end) + g.thread_rank(), std::move(value));
 			advance(m_end, g.size());
 		}
 		else
@@ -641,7 +660,7 @@ namespace gpu
 	template <class Thread>
 	GPU_DEVICE void vector<T, Allocator>::deallocate(Thread g, pointer ptr)
 	{
-		return alloc_traits::deallocate(g, get_allocator(), ptr, capacity());
+		alloc_traits::deallocate(g, get_allocator(), ptr, capacity());
 	}
 
 	template <typename T, class Allocator>
@@ -667,7 +686,7 @@ namespace gpu
 	template <typename... Args>
 	GPU_DEVICE void vector<T, Allocator>::insert_value_end(block_t g, Args&&... args)
 	{
-		const size_type old_size = size();
+		const size_type old_size = max(size(), static_cast<size_type>(g.size() / 2));
 		const size_type new_size = old_size * 2;
 		pointer const ptr = allocate(g, new_size);
 
@@ -675,7 +694,6 @@ namespace gpu
 		alloc_traits::construct(get_allocator(), to_pointer(new_end) + g.thread_rank(), std::forward<Args>(args)...);
 		advance(new_end, g.size());
 
-		destroy(g, m_begin, m_end);
 		deallocate(g, m_begin);
 
 		if (g.thread_rank() == 0)

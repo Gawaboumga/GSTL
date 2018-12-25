@@ -1,5 +1,6 @@
 #include <gstl/memory/allocator_traits.cuh>
 
+#include <gstl/memory/algorithms.cuh>
 #include <gstl/utility/limits.cuh>
 
 namespace gpu
@@ -97,10 +98,31 @@ namespace gpu
 	}
 
 	template <class Allocator>
+	template <class Thread>
+	GPU_DEVICE void allocator_traits<Allocator>::deallocate(Thread g, Allocator& a, pointer p, size_type n)
+	{
+		return a.deallocate(g, p, n);
+	}
+
+	template <class Allocator>
 	template <class T>
 	GPU_DEVICE void allocator_traits<Allocator>::destroy(Allocator& a, T* p)
 	{
-		p->~T();
+		gpu::destroy_at(p);
+	}
+
+	template <class Allocator>
+	template <class InputIt>
+	GPU_DEVICE void allocator_traits<Allocator>::destroy(Allocator& a, InputIt first, InputIt last)
+	{
+		gpu::destroy(first, last);
+	}
+
+	template <class Allocator>
+	template <class Thread, class ForwardIt>
+	GPU_DEVICE void allocator_traits<Allocator>::destroy(Thread g, Allocator& a, ForwardIt first, ForwardIt last)
+	{
+		gpu::destroy(g, first, last);
 	}
 
 	template <class Allocator>
