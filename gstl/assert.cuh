@@ -24,8 +24,8 @@ GPU_DEVICE inline void INTERNAL_ENSURE(bool ok, const char* message, const char*
 }
 
 #define CREATE_2(x, msg) INTERNAL_ENSURE(x, msg, __FILE__, __LINE__)
-#define CREATE_1(x) CREATE_2(x, nullptr);
-#define CREATE_0() CREATE_1(true);
+#define CREATE_1(x) CREATE_2(x, nullptr)
+#define CREATE_0() CREATE_1(true)
 
 #define FUNC_CHOOSER(_f1, _f2, _f3, ...) _f3
 #define FUNC_RECOMPOSER(argsWithParentheses) FUNC_CHOOSER argsWithParentheses
