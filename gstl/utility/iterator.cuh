@@ -10,6 +10,67 @@
 namespace gpu
 {
 	template <class Iterator>
+	class move_iterator
+	{
+		public:
+			using iterator_type = Iterator;
+			using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
+			using value_type = typename std::iterator_traits<iterator_type>::value_type;
+			using difference_type = typename std::iterator_traits<iterator_type>::difference_type;
+			using pointer = iterator_type;
+			using reference = typename std::iterator_traits<iterator_type>::reference;
+
+			GPU_DEVICE GPU_CONSTEXPR move_iterator();
+			GPU_DEVICE GPU_CONSTEXPR explicit move_iterator(iterator_type x);
+			template <class U>
+			GPU_DEVICE GPU_CONSTEXPR move_iterator(const move_iterator<U>& other);
+
+			GPU_DEVICE GPU_CONSTEXPR iterator_type base() const;
+
+			GPU_DEVICE GPU_CONSTEXPR reference operator*() const;
+			GPU_DEVICE GPU_CONSTEXPR pointer operator->() const;
+
+			GPU_DEVICE GPU_CONSTEXPR reference operator[](difference_type n) const;
+
+			GPU_DEVICE GPU_CONSTEXPR move_iterator& operator++();
+			GPU_DEVICE GPU_CONSTEXPR move_iterator operator++(int);
+			GPU_DEVICE GPU_CONSTEXPR move_iterator& operator+=(difference_type n);
+			GPU_DEVICE GPU_CONSTEXPR move_iterator operator+(difference_type n) const;
+
+			GPU_DEVICE GPU_CONSTEXPR move_iterator& operator--();
+			GPU_DEVICE GPU_CONSTEXPR move_iterator operator--(int);
+			GPU_DEVICE GPU_CONSTEXPR move_iterator& operator-=(difference_type n);
+			GPU_DEVICE GPU_CONSTEXPR move_iterator operator-(difference_type n) const;
+
+			template <class U>
+			GPU_DEVICE GPU_CONSTEXPR move_iterator& operator=(const move_iterator<U>& other);
+
+		protected:
+			iterator_type current;
+	};
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> make_reverse_iterator(Iterator it);
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator==(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs);
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator!=(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs);
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator<(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs);
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator<=(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs);
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator>(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs);
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator>=(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs);
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> operator+(typename move_iterator<Iterator>::difference_type n, const move_iterator<Iterator>& it);
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR auto operator-(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs) -> decltype(lhs.base() - rhs.base());
+
+	template <class Iterator>
 	class reverse_iterator
 	{
 		public:

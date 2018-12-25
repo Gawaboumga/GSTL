@@ -3,6 +3,166 @@
 namespace gpu
 {
 	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>::move_iterator()
+	{
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>::move_iterator(iterator_type x) :
+		current(x)
+	{
+	}
+
+	template <class Iterator>
+	template <class U>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>::move_iterator(const move_iterator<U>& other) :
+		current(other.base())
+	{
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR typename move_iterator<Iterator>::iterator_type move_iterator<Iterator>::base() const
+	{
+		return current;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR typename move_iterator<Iterator>::reference move_iterator<Iterator>::operator*() const
+	{
+		return *current;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR typename move_iterator<Iterator>::pointer move_iterator<Iterator>::operator->() const
+	{
+		return current;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR typename move_iterator<Iterator>::reference move_iterator<Iterator>::operator[](difference_type n) const
+	{
+		return *(*this + n);
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>& move_iterator<Iterator>::operator++()
+	{
+		++current;
+		return *this;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> move_iterator<Iterator>::operator++(int)
+	{
+		move_iterator tmp(*this);
+		++current;
+		return tmp;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>& move_iterator<Iterator>::operator+=(difference_type n)
+	{
+		current += n;
+		return *this;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> move_iterator<Iterator>::operator+(difference_type n) const
+	{
+		return move_iterator(current + n);
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>& move_iterator<Iterator>::operator--()
+	{
+		--current;
+		return *this;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> move_iterator<Iterator>::operator--(int)
+	{
+		move_iterator tmp(*this);
+		--current;
+		return tmp;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>& move_iterator<Iterator>::operator-=(difference_type n)
+	{
+		current -= n;
+		return *this;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> move_iterator<Iterator>::operator-(difference_type n) const
+	{
+		return move_iterator(current - n);
+	}
+
+	template <class Iterator>
+	template <class U>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator>& move_iterator<Iterator>::operator=(const move_iterator<U>& other)
+	{
+		current = other.base();
+		return *this;
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> make_move_iterator(Iterator it)
+	{
+		return move_iterator<Iterator>(it);
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator==(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs)
+	{
+		return lhs.base() == rhs.base();
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator!=(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs)
+	{
+		return lhs.base() != rhs.base();
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator<(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs)
+	{
+		return lhs.base() < rhs.base();
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator<=(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs)
+	{
+		return lhs.base() <= rhs.base();
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator>(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs)
+	{
+		return lhs.base() > rhs.base();
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR bool operator>=(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs)
+	{
+		return lhs.base() >= rhs.base();
+	}
+
+	template <class Iterator>
+	GPU_DEVICE GPU_CONSTEXPR move_iterator<Iterator> operator+(typename move_iterator<Iterator>::difference_type n, const move_iterator<Iterator>& it)
+	{
+		return move_iterator<Iterator>(it.base() + n);
+	}
+
+	template <class Iterator1, class Iterator2>
+	GPU_DEVICE GPU_CONSTEXPR auto operator-(const move_iterator<Iterator1>& lhs, const move_iterator<Iterator2>& rhs) -> decltype(lhs.base() - rhs.base())
+	{
+		return lhs.base() - rhs.base();
+	}
+
+	template <class Iterator>
 	GPU_DEVICE GPU_CONSTEXPR reverse_iterator<Iterator>::reverse_iterator()
 	{
 	}
