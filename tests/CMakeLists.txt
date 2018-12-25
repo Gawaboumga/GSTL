@@ -1,0 +1,28 @@
+
+file(GLOB TEST_SOURCES
+		${TEST_FOLDER}main.cpp
+		${TEST_FOLDER}algorithms/**.cpp
+		${TEST_FOLDER}algorithms/**.cu
+		${TEST_FOLDER}allocators/**.cpp
+		${TEST_FOLDER}allocators/**.cu
+		${TEST_FOLDER}containers/**.cpp
+		${TEST_FOLDER}containers/**.cu
+		${TEST_FOLDER}concurrent/**.cpp
+		${TEST_FOLDER}concurrent/**.cu
+		${TEST_FOLDER}numeric/**.cpp
+		${TEST_FOLDER}numeric/**.cu
+		${TEST_FOLDER}random/**.cpp
+		${TEST_FOLDER}random/**.cu
+		${TEST_FOLDER}utility/**.cpp
+		${TEST_FOLDER}utility/**.cu
+)
+
+add_executable(gstl_tests ${TEST_SOURCES})
+
+target_include_directories(gstl_tests
+	PUBLIC
+		${GSTL_INCLUDES}
+		${THIRDPARTY_INCLUDES}
+		${TEST_FOLDER}
+)
+
