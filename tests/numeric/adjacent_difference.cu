@@ -4,7 +4,6 @@
 #include <base_test.cuh>
 
 #include <gstl/algorithms/fill.cuh>
-#include <gstl/algorithms/sort.cuh>
 #include <gstl/containers/array.cuh>
 #include <gstl/functional/function_object.cuh>
 
