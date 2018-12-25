@@ -78,7 +78,7 @@ namespace gpu
 		ForwardIt next = first;
 		++next;
 		for (; next != last; ++next, ++first)
-			if (p(*first, *next))
+			if (!p(*first, *next))
 				return first;
 
 		return last;
