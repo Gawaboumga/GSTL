@@ -44,6 +44,7 @@ namespace gpu
 		return cooperative_groups::tiled_partition<tile_sz>(block);
 	}
 
+	static constexpr I32 DEFAULT_BYTE_ALIGNMENT = 32u;
 	static constexpr I32 MAX_NUMBER_OF_THREADS_PER_WARP = 32u;
 	static constexpr I32 MAX_NUMBER_OF_WARPS_PER_BLOCK = 32u;
 	static constexpr I32 MAX_NUMBER_OF_THREADS_PER_BLOCK = MAX_NUMBER_OF_WARPS_PER_BLOCK * MAX_NUMBER_OF_THREADS_PER_WARP;
