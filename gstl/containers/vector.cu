@@ -557,7 +557,7 @@ namespace gpu
 
 	template <typename T, class Allocator>
 	template <class Thread>
-	GPU_DEVICE void vector<T, Allocator>::pop_back(Thread g, T* result)
+	GPU_DEVICE bool vector<T, Allocator>::pop_back(Thread g, T* result)
 	{
 		if (g.size() >= size())
 		{
