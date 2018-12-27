@@ -100,8 +100,11 @@ namespace gpu
 			GPU_DEVICE vector& operator=(vector&& other);
 
 			GPU_DEVICE void pop_back();
+			GPU_DEVICE bool pop_back(T* result);
 			template <class Thread>
 			GPU_DEVICE void pop_back(Thread g);
+			template <class Thread>
+			GPU_DEVICE bool pop_back(Thread g, T* result);
 			GPU_DEVICE void push_back(const_reference value);
 			template <class Thread>
 			GPU_DEVICE void push_back(Thread g, const_reference value);

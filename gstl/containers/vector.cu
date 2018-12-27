@@ -531,6 +531,17 @@ namespace gpu
 	}
 
 	template <typename T, class Allocator>
+	GPU_DEVICE bool vector<T, Allocator>::pop_back(T* result)
+	{
+		if (empty())
+			return false;
+
+		--m_end;
+		*result = std::move(*m_end);
+		return true;
+	}
+
+	template <typename T, class Allocator>
 	template <class Thread>
 	GPU_DEVICE void vector<T, Allocator>::pop_back(Thread g)
 	{
@@ -538,8 +549,32 @@ namespace gpu
 		ENSURE(size() >= g.size());
 	#endif // GPU_DEBUG_OUT_OF_RANGE || GPU_DEBUG_VECTOR
 
-		m_end -= g.size();
+		if (g.thread_rank() == 0)
+			m_end -= g.size();
+		g.sync();
 		alloc_traits::destroy(get_allocator(), to_pointer(m_end) + g.thread_rank());
+	}
+
+	template <typename T, class Allocator>
+	template <class Thread>
+	GPU_DEVICE void vector<T, Allocator>::pop_back(Thread g, T* result)
+	{
+		if (g.size() >= size())
+		{
+			if (g.thread_rank() == 0)
+				m_end = m_begin;
+			g.sync();
+			*result = std::move(*(to_pointer(m_end) + g.thread_rank()));
+			return g.thread_rank() < size();
+		}
+		else
+		{
+			if (g.thread_rank() == 0)
+				m_end -= g.size();
+			g.sync();
+			*result = std::move(*(to_pointer(m_end) + g.thread_rank()));
+			return true;
+		}
 	}
 
 	template <typename T, class Allocator>
