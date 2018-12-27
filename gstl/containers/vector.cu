@@ -520,6 +520,29 @@ namespace gpu
 	}
 
 	template <typename T, class Allocator>
+	GPU_DEVICE void vector<T, Allocator>::pop_back()
+	{
+	#if defined(GPU_DEBUG_OUT_OF_RANGE) || defined(GPU_DEBUG_VECTOR)
+		ENSURE(!empty());
+	#endif // GPU_DEBUG_OUT_OF_RANGE || GPU_DEBUG_VECTOR
+
+		--m_end;
+		alloc_traits::destroy(get_allocator(), to_pointer(m_end));
+	}
+
+	template <typename T, class Allocator>
+	template <class Thread>
+	GPU_DEVICE void vector<T, Allocator>::pop_back(Thread g)
+	{
+	#if defined(GPU_DEBUG_OUT_OF_RANGE) || defined(GPU_DEBUG_VECTOR)
+		ENSURE(size() >= g.size());
+	#endif // GPU_DEBUG_OUT_OF_RANGE || GPU_DEBUG_VECTOR
+
+		m_end -= g.size();
+		alloc_traits::destroy(get_allocator(), to_pointer(m_end) + g.thread_rank());
+	}
+
+	template <typename T, class Allocator>
 	GPU_DEVICE void vector<T, Allocator>::push_back(const_reference value)
 	{
 		if (m_end < m_end_capacity)

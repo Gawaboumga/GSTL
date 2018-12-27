@@ -99,6 +99,9 @@ namespace gpu
 			GPU_DEVICE const_reference operator[](size_type n) const;
 			GPU_DEVICE vector& operator=(vector&& other);
 
+			GPU_DEVICE void pop_back();
+			template <class Thread>
+			GPU_DEVICE void pop_back(Thread g);
 			GPU_DEVICE void push_back(const_reference value);
 			template <class Thread>
 			GPU_DEVICE void push_back(Thread g, const_reference value);
