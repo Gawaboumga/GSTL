@@ -35,7 +35,44 @@ namespace gpu
 	{
 		for (; first != last; ++first)
 			unary_op(*first);
+	}
 
-		return f;
+	template <class ForwardIt, class Size, class UnaryFunction>
+	GPU_DEVICE ForwardIt for_each_n(block_t g, ForwardIt first, Size n, UnaryFunction unary_op)
+	{
+		offset_t thid = g.thread_rank();
+		offset_t offset = 0;
+
+		while (offset + thid < n)
+		{
+			unary_op(*(first + offset + thid));
+			offset += g.size();
+		}
+
+		return first + n;
+	}
+
+	template <class BlockTile, class ForwardIt, class Size, class UnaryFunction>
+	GPU_DEVICE ForwardIt for_each_n(BlockTile g, ForwardIt first, Size n, UnaryFunction unary_op)
+	{
+		offset_t thid = g.thread_rank();
+		offset_t offset = 0;
+
+		while (offset + thid < n)
+		{
+			unary_op(*(first + offset + thid));
+			offset += g.size();
+		}
+
+		return first + n;
+	}
+
+	template <class InputIt, class Size, class UnaryFunction>
+	GPU_DEVICE GPU_CONSTEXPR InputIt for_each_n(InputIt first, Size n, UnaryFunction unary_op)
+	{
+		for (Size i = 0; i < n; ++first, (void)++i)
+			unary_op(*first);
+
+		return first;
 	}
 }
