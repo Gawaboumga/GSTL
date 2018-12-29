@@ -27,13 +27,10 @@ namespace gpu
 	template <class T = void>
 	struct negate;
 
-	template <class T>
+	template <class T = void>
 	struct equal_to
 	{
-		GPU_DEVICE GPU_CONSTEXPR bool operator()(const T &lhs, const T &rhs) const
-		{
-			return lhs == rhs;
-		}
+		GPU_DEVICE GPU_CONSTEXPR bool operator()(const T& lhs, const T& rhs) const;
 	};
 
 	template <class T = void>

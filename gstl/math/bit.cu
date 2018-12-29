@@ -17,10 +17,7 @@ namespace gpu
 		if (x == 0 || x == 1)
 			return T(1);
 
-		constexpr auto number_of_digits = numeric_limits<T>::digits;
-		const unsigned n = number_of_digits - clz(x - 1u);
-		const T y_2 = 1u << (n - 1u);
-		return y_2 << 1u;
+		return 1 << (32u - clz(x - 1u));
 	}
 
 	template <typename T>

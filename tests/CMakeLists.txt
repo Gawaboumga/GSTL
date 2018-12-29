@@ -7,8 +7,12 @@ file(GLOB TEST_SOURCES
 		${TEST_FOLDER}allocators/**.cu
 		${TEST_FOLDER}containers/**.cpp
 		${TEST_FOLDER}containers/**.cu
-		${TEST_FOLDER}concurrent/**.cpp
-		${TEST_FOLDER}concurrent/**.cu
+		${TEST_FOLDER}containers/concurrent/**.cpp
+		${TEST_FOLDER}containers/concurrent/**.cu
+		${TEST_FOLDER}containers/concurrent/hash_tables/**.cpp
+		${TEST_FOLDER}containers/concurrent/hash_tables/**.cu
+		${TEST_FOLDER}containers/concurrent/hash_tables/fixed/**.cpp
+		${TEST_FOLDER}containers/concurrent/hash_tables/fixed/**.cu
 		${TEST_FOLDER}numeric/**.cpp
 		${TEST_FOLDER}numeric/**.cu
 		${TEST_FOLDER}random/**.cpp

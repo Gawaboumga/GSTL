@@ -75,6 +75,12 @@ namespace gpu
 		}
 	};
 
+	template <typename T>
+	GPU_DEVICE GPU_CONSTEXPR bool equal_to<T>::operator()(const T& lhs, const T& rhs) const
+	{
+		return lhs == rhs;
+	}
+
 	template <>
 	struct equal_to<void>
 	{
