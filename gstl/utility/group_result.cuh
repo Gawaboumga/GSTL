@@ -11,16 +11,16 @@ namespace gpu
 	class group_result
 	{
 		public:
-			GPU_DEVICE group_result() = default;
+			group_result() = default;
 			GPU_DEVICE group_result(T value);
-			GPU_DEVICE group_result(group_result&&) = default;
+			group_result(group_result&&) = default;
 
 			GPU_DEVICE T broadcast(block_t g);
 			template <class BlockTile>
 			GPU_DEVICE T broadcast(BlockTile g);
 
 			GPU_DEVICE operator T();
-			GPU_DEVICE group_result& operator=(group_result&&) = default;
+			group_result& operator=(group_result&&) = default;
 
 		private:
 			T m_value;

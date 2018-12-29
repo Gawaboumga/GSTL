@@ -15,11 +15,14 @@ namespace gpu
 		public:
 			using byte_type = typename base_allocator<linear_allocator<T>>::byte_type;
 			using size_type = typename base_allocator<linear_allocator<T>>::size_type;
+			using difference_type = typename base_allocator<linear_allocator<T>>::difference_type;
 			using value_type = T;
 			using pointer = allocated_memory<T>;
 
-			GPU_DEVICE linear_allocator() = default;
-			GPU_DEVICE linear_allocator(const linear_allocator&) = default;
+			linear_allocator() = default;
+			linear_allocator(const linear_allocator&) = default;
+			template <unsigned int N>
+			GPU_DEVICE linear_allocator(array<byte_type, N>& fixed_memory);
 			GPU_DEVICE linear_allocator(byte_type* memory, size_type total_size);
 
 			GPU_DEVICE allocated_memory<T> allocate(block_t g, size_type n);
@@ -39,7 +42,7 @@ namespace gpu
 
 			GPU_DEVICE size_type memory_consumed() const;
 
-			GPU_DEVICE linear_allocator& operator=(const linear_allocator&) = default;
+			linear_allocator& operator=(const linear_allocator&) = default;
 
 		private:
 			size_type m_offset;

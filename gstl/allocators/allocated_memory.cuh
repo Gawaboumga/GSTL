@@ -41,22 +41,22 @@ namespace gpu
 			GPU_DEVICE const_reverse_iterator crend() const noexcept;
 
 		public:
-			GPU_DEVICE allocated_memory() noexcept = default;
-			GPU_DEVICE allocated_memory(const allocated_memory&) noexcept = default;
+			allocated_memory() noexcept = default;
+			allocated_memory(const allocated_memory&) noexcept = default;
 			GPU_DEVICE allocated_memory(std::nullptr_t) noexcept;
 			GPU_DEVICE allocated_memory(block_t g, T* ptr, size_type count) noexcept;
 			template <class BlockTile>
 			GPU_DEVICE allocated_memory(BlockTile g, T* ptr, size_type count) noexcept;
 			GPU_DEVICE allocated_memory(T* ptr, size_type count) noexcept;
-			GPU_DEVICE allocated_memory(allocated_memory&& other) noexcept = default;
+			allocated_memory(allocated_memory&& other) noexcept = default;
 
 			GPU_DEVICE T* data() noexcept;
 			GPU_DEVICE const T* data() const noexcept;
 
 			GPU_DEVICE bool is_valid() const noexcept;
 
-			GPU_DEVICE allocated_memory& operator=(const allocated_memory& other) noexcept = default;
-			GPU_DEVICE allocated_memory& operator=(allocated_memory&& other) noexcept = default;
+			allocated_memory& operator=(const allocated_memory& other) noexcept = default;
+			allocated_memory& operator=(allocated_memory&& other) noexcept = default;
 			GPU_DEVICE reference operator[](size_type pos) noexcept;
 			GPU_DEVICE const_reference operator[](size_type pos) const noexcept;
 			GPU_DEVICE allocated_memory operator+(size_type pos) const noexcept;

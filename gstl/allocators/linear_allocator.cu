@@ -5,6 +5,14 @@
 namespace gpu
 {
 	template <typename T>
+	template <unsigned int N>
+	GPU_DEVICE linear_allocator<T>::linear_allocator(array<byte_type, N>& fixed_memory) :
+		base_allocator { fixed_memory },
+		m_offset{ 0 }
+	{
+	}
+
+	template <typename T>
 	GPU_DEVICE linear_allocator<T>::linear_allocator(byte_type* memory, size_type total_size) :
 		base_allocator{ memory, total_size },
 		m_offset{ 0 }

@@ -15,6 +15,14 @@ namespace gpu
 	}
 
 	template <class DerivedAllocator>
+	template <unsigned int N>
+	GPU_DEVICE base_allocator<DerivedAllocator>::base_allocator(array<byte_type, N>& fixed_memory) :
+		m_memory{ fixed_memory.data() },
+		m_total_size{ fixed_memory.size() }
+	{
+	}
+
+	template <class DerivedAllocator>
 	GPU_DEVICE base_allocator<DerivedAllocator>::base_allocator(byte_type* memory, size_type total_size) :
 		m_memory{ memory },
 		m_total_size{ total_size }

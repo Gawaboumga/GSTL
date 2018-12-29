@@ -14,7 +14,7 @@ namespace gpu
 		using difference_type = value_type;
 		using threads = block_tile_t<32>;
 
-		GPU_DEVICE atomic() = default;
+		atomic() = default;
 		GPU_DEVICE atomic(value_type desired);
 
 		GPU_DEVICE value_type compare_and_swap(value_type expected, value_type desired);
@@ -71,7 +71,7 @@ namespace gpu
 		using difference_type = std::ptrdiff_t;
 		using threads = cooperative_groups::thread_block_tile<32>;
 
-		GPU_DEVICE atomic() = default;
+		atomic() = default;
 		GPU_DEVICE atomic(pointer_type desired);
 
 		GPU_DEVICE pointer_type compare_and_swap(pointer_type expected, pointer_type desired);

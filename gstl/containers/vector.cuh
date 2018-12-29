@@ -17,12 +17,12 @@ namespace gpu
 		public:
 			using value_type = T;
 			using allocator_type = Allocator;
-			using size_type = size_t;
+			using size_type = typename allocator_traits<allocator_type>::size_type;
 			using reference = value_type&;
 			using const_reference = const value_type&;
-			using difference_type = typename allocator_traits<Allocator>::difference_type;
-			using pointer = typename allocator_traits<Allocator>::pointer;
-			using const_pointer = typename allocator_traits<Allocator>::const_pointer;
+			using difference_type = typename allocator_traits<allocator_type>::difference_type;
+			using pointer = typename allocator_traits<allocator_type>::pointer;
+			using const_pointer = typename allocator_traits<allocator_type>::const_pointer;
 			using iterator = T*;
 			using const_iterator = const T*;
 			using reverse_iterator = gpu::reverse_iterator<iterator>;
@@ -44,7 +44,7 @@ namespace gpu
 			GPU_DEVICE GPU_CONSTEXPR const_reverse_iterator crend() const;
 
 		public:
-			GPU_DEVICE vector() noexcept = default;
+			vector() noexcept = default;
 			GPU_DEVICE explicit vector(const Allocator& alloc) noexcept;
 			GPU_DEVICE explicit vector(Allocator&& alloc) noexcept;
 			GPU_DEVICE vector(size_type count, const T& value, const Allocator& alloc = Allocator());

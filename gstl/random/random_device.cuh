@@ -12,7 +12,7 @@ namespace gpu
 		public:
 			using result_type = unsigned int;
 
-			GPU_DEVICE random_device() = default;
+			random_device() = default;
 			GPU_DEVICE random_device(const random_device&) = delete;
 
 			GPU_DEVICE double entropy() const noexcept;

@@ -15,7 +15,7 @@ namespace gpu
 		using first_type = T1;
 		using second_type = T2;
 
-		GPU_DEVICE pair() = default;
+		pair() = default;
 
 		GPU_DEVICE pair(const first_type& x, const second_type& y) :
 			first{ x },
@@ -43,8 +43,8 @@ namespace gpu
 		{
 		}
 
-		GPU_DEVICE pair(const pair& other) = default;
-		GPU_DEVICE pair(pair&& other) = default;
+		pair(const pair& other) = default;
+		pair(pair&& other) = default;
 
 		template <typename U1, typename U2>
 		GPU_DEVICE pair& operator=(const pair<U1, U2>& other)
@@ -62,8 +62,8 @@ namespace gpu
 			return *this;
 		}
 
-		GPU_DEVICE pair& operator=(const pair& other) = default;
-		GPU_DEVICE pair& operator=(pair&& other) = default;
+		pair& operator=(const pair& other) = default;
+		pair& operator=(pair&& other) = default;
 
 		first_type first;
 		second_type second;
