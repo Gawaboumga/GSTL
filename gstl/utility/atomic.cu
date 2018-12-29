@@ -1,7 +1,108 @@
 #include <gstl/utility/atomic.cuh>
 
+#include <type_traits>
+
 namespace gpu
 {
+	namespace detail
+	{
+		template <typename T, bool enum_like = std::is_enum<T>::value>
+		struct atomic_cas
+		{
+		};
+
+		template <typename T>
+		struct atomic_cas<T, true>
+		{
+			GPU_DEVICE T operator()(T* address, T compare, T val) const noexcept
+			{
+				return static_cast<T>(atomic_cas<std::underlying_type_t<T>>{}(
+					reinterpret_cast<std::underlying_type_t<T>*>(address),
+					compare,
+					val));
+			}
+		};
+
+		template <>
+		struct atomic_cas<int, false>
+		{
+			GPU_DEVICE int operator()(int* address, int compare, int val) const noexcept
+			{
+				return atomicCAS(address, compare, val);
+			}
+		};
+
+		template <>
+		struct atomic_cas<unsigned int, false>
+		{
+			GPU_DEVICE unsigned int operator()(unsigned int* address, unsigned int compare, unsigned int val) const noexcept
+			{
+				return atomicCAS(address, compare, val);
+			}
+		};
+
+		template <>
+		struct atomic_cas<unsigned long long int, false>
+		{
+			GPU_DEVICE unsigned long long int operator()(unsigned long long int* address, unsigned long long int compare, unsigned long long int val) const noexcept
+			{
+				return atomicCAS(address, compare, val);
+			}
+		};
+
+		template <typename T, bool enum_like = std::is_enum<T>::value>
+		struct atomic_exchange
+		{
+		};
+
+		template <typename T>
+		struct atomic_exchange<T, true>
+		{
+			GPU_DEVICE T operator()(T* address, T val) const noexcept
+			{
+				return static_cast<T>(atomic_exchange<std::underlying_type_t<T>>{}(
+					reinterpret_cast<std::underlying_type_t<T>*>(address),
+					val));
+			}
+		};
+
+		template <>
+		struct atomic_exchange<int, false>
+		{
+			GPU_DEVICE int operator()(int* address, int val) const noexcept
+			{
+				return atomicExch(address, val);
+			}
+		};
+
+		template <>
+		struct atomic_exchange<unsigned int, false>
+		{
+			GPU_DEVICE unsigned int operator()(unsigned int* address, unsigned int val) const noexcept
+			{
+				return atomicExch(address, val);
+			}
+		};
+
+		template <>
+		struct atomic_exchange<unsigned long long int, false>
+		{
+			GPU_DEVICE unsigned long long int operator()(unsigned long long int* address, unsigned long long int val) const noexcept
+			{
+				return atomicExch(address, val);
+			}
+		};
+
+		template <>
+		struct atomic_exchange<float, false>
+		{
+			GPU_DEVICE float operator()(float* address, float val) const noexcept
+			{
+				return atomicExch(address, val);
+			}
+		};
+	}
+
 	template <typename T>
 	GPU_DEVICE atomic<T>::atomic(value_type desired) :
 		m_data{ desired }
@@ -11,7 +112,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE typename atomic<T>::value_type atomic<T>::compare_and_swap(value_type expected, value_type desired)
 	{
-		return atomicCAS(&m_data, expected, desired);
+		return detail::atomic_cas<T>{}(&m_data, expected, desired);
 	}
 
 	template <typename T>
@@ -19,7 +120,7 @@ namespace gpu
 	{
 		value_type old;
 		if (g.thread_rank() == 0)
-			old = atomicCAS(&m_data, expected, desired);
+			old = detail::atomic_cas<T>{}(&m_data, expected, desired);
 		old = g.shfl(old, 0);
 		return old;
 	}
@@ -30,7 +131,7 @@ namespace gpu
 		value_type old;
 		do
 		{
-			old = atomicCAS(&m_data, expected, desired);
+			old = detail::atomic_cas<T>{}(&m_data, expected, desired);
 		} while (expected != old);
 		return true;
 	}
@@ -38,7 +139,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE bool atomic<T>::compare_exchange_weak(value_type expected, value_type desired)
 	{
-		return atomicCAS(&m_data, expected, desired) == desired;
+		return detail::atomic_cas<T>{}(&m_data, expected, desired) == desired;
 	}
 
 	template <typename T>
@@ -56,7 +157,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE typename atomic<T>::value_type atomic<T>::exchange(value_type desired)
 	{
-		return atomicExch(&m_data, desired);
+		return detail::atomic_exchange<T>{}(&m_data, desired);
 	}
 
 	template <typename T>
@@ -211,7 +312,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE void atomic<T>::store(value_type desired)
 	{
-		atomicExch(&m_data, desired);
+		detail::atomic_exchange<T>{}(&m_data, desired);
 	}
 
 	template <typename T>
@@ -236,7 +337,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE typename atomic<T*>::pointer_type atomic<T*>::compare_and_swap(pointer_type expected, pointer_type desired)
 	{
-		return to_pointer(atomicCAS(data(), to_integral(expected), to_integral(desired)));
+		return to_pointer(detail::atomic_cas<T>{}(data(), to_integral(expected), to_integral(desired)));
 	}
 
 	template <typename T>
@@ -268,7 +369,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE typename atomic<T*>::pointer_type atomic<T*>::exchange(pointer_type desired)
 	{
-		return to_pointer(atomicExch(data(), to_integral(desired)));
+		return to_pointer(detail::atomic_exchange<T>{}(data(), to_integral(desired)));
 	}
 
 	template <typename T>
@@ -304,7 +405,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE typename atomic<T*>::pointer_type atomic<T*>::operator=(pointer_type desired)
 	{
-		return to_pointer(atomicExch(data(), to_integral(desired)));
+		return to_pointer(detail::atomic_exchange<T>{}(data(), to_integral(desired)));
 	}
 
 	template <typename T>
@@ -346,7 +447,7 @@ namespace gpu
 	template <typename T>
 	GPU_DEVICE void atomic<T*>::store(pointer_type desired)
 	{
-		atomicExch(data(), to_integral(desired));
+		detail::atomic_exchange<T>{}(data(), to_integral(desired));
 	}
 
 	template <typename T>
