@@ -57,13 +57,13 @@ namespace cuda {
 
 enum : shared_memory_size_t { no_shared_memory = 0 };
 constexpr grid_dimensions_t single_block() { return 1; }
-constexpr grid_block_dimensions_t single_thread_per_block() { return 1; };
+constexpr grid_block_dimensions_t single_thread_per_block() { return 1; }
 
 namespace detail {
 
 template<typename Fun>
 struct is_function_ptr: std::integral_constant<bool,
-    std::is_pointer<Fun>::value && std::is_function<typename std::remove_pointer<Fun>::type>::value> { };
+    std::is_pointer<Fun>::value and std::is_function<typename std::remove_pointer<Fun>::type>::value> { };
 
 inline void collect_argument_addresses(void** collected_addresses) { }
 
@@ -118,7 +118,7 @@ inline void enqueue_launch(
 	;
 #else
 {
-	static_assert(std::is_function<KernelFunction>::value ||
+	static_assert(std::is_function<KernelFunction>::value or
 	    (detail::is_function_ptr<KernelFunction>::value),
 	    "Only a bona fide function can be a CUDA kernel and be launched; "
 	    "you were attempting to enqueue a launch of something other than a function");
@@ -131,8 +131,6 @@ inline void enqueue_launch(
 			launch_configuration.dynamic_shared_memory_size,
 			stream_id
 			>>>(parameters...);
-		auto status = cuda::outstanding_error::get();
-		throw_if_error(status, "Failed to launch kernel");
 	}
 	else {
 #if __CUDACC_VER_MAJOR__ >= 9
@@ -141,8 +139,17 @@ inline void enqueue_launch(
 		// a bit of useless work here. We could have done exactly the same thing
 		// for the non-cooperative case, mind you.
 
-		void* argument_ptrs[sizeof...(KernelParameters) == 0 ? 1 : sizeof...(KernelParameters)];
-		detail::collect_argument_addresses(argument_ptrs, std::forward<KernelParameters>(parameters)...);
+		// The following hack is due to C++ not supporting arrays of length 0 -
+		// but such an array being necessary for collect_argument_addresses with
+		// multiple parameters. Other workarounds are possible, but would be
+		// more cumbersome, except perhaps with C++17 or later.
+		constexpr auto non_zero_num_params =
+			sizeof...(KernelParameters) == 0 ? 1 : sizeof...(KernelParameters);
+		void* argument_ptrs[non_zero_num_params];
+		// fill the argument array with our parameters. Yes, the use
+		// of the two terms is confusing here and depends on how you
+		// look at things.
+		detail::collect_argument_addresses(argument_ptrs, parameters...);
 		auto status = cudaLaunchCooperativeKernel(
 			(const void*) kernel_function,
 			launch_configuration.grid_dimensions,
