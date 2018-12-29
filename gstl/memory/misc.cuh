@@ -7,7 +7,7 @@
 
 namespace gpu
 {
-	GPU_DEVICE void* align(size_t alignment, size_t size, void*& ptr, size_t& space);
+	inline GPU_DEVICE void* align(size_t alignment, size_t size, void*& ptr, size_t& space);
 
 	template <typename T>
 	GPU_DEVICE GPU_CONSTEXPR T* addressof(T& arg) noexcept;
