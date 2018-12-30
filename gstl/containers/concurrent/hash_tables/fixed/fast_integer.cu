@@ -105,15 +105,16 @@ namespace gpu
 			do
 			{
 				size_type index = layout_type::get_position(key, offset) & m_mask;
-				lock_type* current_lock;
+				lock_type current_lock;
 				do
 				{
-					current_lock = layout_type::get_lock(index);
+					current_lock = layout_type::get_lock_info(index);
+
+					if (layout_type::match(index, key))
+						return layout_type::get_data(index);
+					if (layout_type::empty(current_lock))
+						return end();
 				} while (layout_type::busy(current_lock));
-				if (layout_type::match(current_lock, key))
-					return layout_type::get_data(index);
-				if (layout_type::empty(current_lock))
-					return end();
 
 				++offset;
 			} while (offset < capacity());
@@ -132,18 +133,19 @@ namespace gpu
 			do
 			{
 				size_type index = layout_type::get_position(g, key, offset) & m_mask;
-				lock_type* current_lock;
+				lock_type current_lock;
 				do
 				{
-					current_lock = layout_type::get_lock(g, index);
-				} while (layout_type::busy(g, current_lock));
-				size_type new_index;
-				if (layout_type::match(g, current_lock, key, &new_index))
-					return layout_type::get_data(g, new_index);
-				if (layout_type::empty(g, current_lock))
-					return end();
+					current_lock = layout_type::get_lock_info(index);
 
-				offset = layout_type::increment_offset(offset, g);
+					size_type winning_index;
+					if (layout_type::match(g, index, key, &winning_index))
+						return layout_type::get_data(winning_index);
+					if (layout_type::empty(g, current_lock))
+						return end();
+				} while (layout_type::busy(current_lock));
+
+				offset = layout_type::increment_offset(g, offset);
 			} while (offset < capacity());
 
 		#if defined(GPU_DEBUG_FAST_INTEGER) || defined(GPU_DEBUG_OUT_OF_RANGE)
@@ -159,15 +161,16 @@ namespace gpu
 			do
 			{
 				size_type index = layout_type::get_position(key, offset) & m_mask;
-				lock_type* current_lock;
+				lock_type current_lock;
 				do
 				{
-					current_lock = layout_type::get_lock(index);
+					current_lock = layout_type::get_lock_info(index);
+
+					if (layout_type::match(index, key))
+						return layout_type::get_data(index);
+					if (layout_type::empty(current_lock))
+						return end();
 				} while (layout_type::busy(current_lock));
-				if (layout_type::match(current_lock, key))
-					return layout_type::get_data(index);
-				if (layout_type::empty(current_lock))
-					return end();
 
 				++offset;
 			} while (offset < capacity());
@@ -190,14 +193,14 @@ namespace gpu
 				do
 				{
 					current_lock = layout_type::get_lock(g, index);
-				} while (layout_type::busy(g, current_lock));
-				size_type new_index;
-				if (layout_type::match_lock(g, current_lock, key, &new_index))
-					return layout_type::get_data(g, new_index);
-				if (layout_type::empty(g, current_lock))
-					return end();
+					size_type new_index;
+					if (layout_type::match_lock(g, current_lock, key, &new_index))
+						return layout_type::get_data(g, new_index);
+					if (layout_type::empty(g, current_lock))
+						return end();
+				} while (layout_type::busy(current_lock));
 
-				offset = layout_type::increment_offset(offset, g);
+				offset = layout_type::increment_offset(g, offset);
 			} while (offset < capacity());
 
 		#if defined(GPU_DEBUG_FAST_INTEGER) || defined(GPU_DEBUG_OUT_OF_RANGE)
@@ -209,14 +212,14 @@ namespace gpu
 		template <typename Key, typename T, class Allocator, class HashInfo>
 		GPU_DEVICE typename fast_integer<Key, T, Allocator, HashInfo>::iterator fast_integer<Key, T, Allocator, HashInfo>::insert(const value_type& value)
 		{
-			return insert_or_update(value, layout_type::default_transfer);
+			return insert_or_update(value, layout_type::default_transfer_const);
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>
 		template <class Thread>
 		GPU_DEVICE typename fast_integer<Key, T, Allocator, HashInfo>::iterator fast_integer<Key, T, Allocator, HashInfo>::insert(Thread g, const value_type& value)
 		{
-			return insert_or_update(g, value, layout_type::default_transfer);
+			return insert_or_update(g, value, layout_type::default_transfer_const);
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>
@@ -240,26 +243,30 @@ namespace gpu
 			do
 			{
 				size_type index = layout_type::get_position(value.first, offset) & m_mask;
-				lock_type* current_lock;
+				lock_type current_lock;
+				bool result = false;
 				do
 				{
-					current_lock = layout_type::get_lock(index);
-				} while (layout_type::busy(current_lock));
+					current_lock = layout_type::get_lock_info(index);
 
-				if (layout_type::empty_lock(current_lock, key))
-				{
-					f(layout_type::get_value(current_lock), value);
-					layout_type::unlock(current_lock);
-					return layout_type::get_data(current_lock);
-				}
+					if (layout_type::empty_lock(current_lock, index, value.first))
+					{
+						f(layout_type::get_value(index), value);
+						layout_type::unlock(index);
+						++m_number_of_elements;
+						result = true;
+					}
 
-				if (layout_type::match_lock(current_lock, key))
-				{
-					f(layout_type::get_value(current_lock), value);
-					layout_type::unlock(current_lock);
-					++m_number_of_elements;
-					return layout_type::get_data(current_lock);
-				}
+					if (!result && layout_type::match_lock(current_lock, index, value.first))
+					{
+						f(layout_type::get_value(index), value);
+						layout_type::unlock(index);
+						result = true;
+					}
+
+					if (result)
+						return layout_type::get_data(index);
+				} while (layout_type::empty(current_lock) || layout_type::busy(current_lock) || layout_type::occupied(index, value.first));
 
 				++offset;
 			} while (offset < capacity());
@@ -274,38 +281,10 @@ namespace gpu
 		template <class Thread, class Function>
 		GPU_DEVICE typename fast_integer<Key, T, Allocator, HashInfo>::iterator fast_integer<Key, T, Allocator, HashInfo>::insert_or_update(Thread g, const value_type& value, Function f)
 		{
-			size_type offset = 0;
-			do
-			{
-				size_type index = layout_type::get_position(g, value.first, offset, capacity()) & m_mask;
-				lock_type* current_lock;
-				do
-				{
-					current_lock = layout_type::get_lock(index);
-				} while (busy(current_lock));
-
-				if (layout_type::empty_lock(current_lock, key))
-				{
-					f(layout_type::get_value(current_lock), value);
-					layout_type::unlock(current_lock);
-					++m_number_of_elements;
-					return layout_type::get_data(current_lock);
-				}
-
-				if (layout_type::match_lock(current_lock, key))
-				{
-					f(layout_type::get_value(current_lock), value);
-					layout_type::unlock(current_lock);
-					return layout_type::get_data(current_lock);
-				}
-
-				offset = layout_type::increment_offset(offset, g);
-			} while (offset < capacity());
-
-		#if defined(GPU_DEBUG_FAST_INTEGER) || defined(GPU_DEBUG_OUT_OF_RANGE)
-			ENSURE(false, "Could not find element");
-		#endif // GPU_DEBUG_FAST_INTEGER || GPU_DEBUG_OUT_OF_RANGE
-			return end();
+			iterator result;
+			if (g.thread_rank() == 0)
+				result = insert_or_update(value, f);
+			return shfl(g, result);
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>
@@ -316,26 +295,30 @@ namespace gpu
 			do
 			{
 				size_type index = layout_type::get_position(value.first, offset) & m_mask;
-				lock_type* current_lock;
+				lock_type current_lock;
+				bool result = false;
 				do
 				{
-					current_lock = layout_type::get_lock(index);
-				} while (layout_type::busy(current_lock));
+					current_lock = layout_type::get_lock_info(index);
 
-				if (layout_type::empty_lock(current_lock, value.first))
-				{
-					f(layout_type::get_value(current_lock), std::move(value));
-					layout_type::unlock(current_lock);
-					++m_number_of_elements;
-					return layout_type::get_data(current_lock);
-				}
+					if (layout_type::empty_lock(current_lock, index, value.first))
+					{
+						f(layout_type::get_value(index), std::move(value));
+						layout_type::unlock(index);
+						++m_number_of_elements;
+						result = true;
+					}
 
-				if (layout_type::match_lock(current_lock, value.first))
-				{
-					f(layout_type::get_value(current_lock), std::move(value));
-					layout_type::unlock(current_lock);
-					return layout_type::get_data(current_lock);
-				}
+					if (!result && layout_type::match_lock(current_lock, index, value.first))
+					{
+						f(layout_type::get_value(index), std::move(value));
+						layout_type::unlock(index);
+						result = true;
+					}
+
+					if (result)
+						return layout_type::get_data(index);
+				} while (layout_type::empty(current_lock) || layout_type::busy(current_lock) || layout_type::occupied(index, value.first));
 
 				++offset;
 			} while (offset < capacity());
@@ -350,38 +333,10 @@ namespace gpu
 		template <class Thread, class Function>
 		GPU_DEVICE typename fast_integer<Key, T, Allocator, HashInfo>::iterator fast_integer<Key, T, Allocator, HashInfo>::insert_or_update(Thread g, value_type&& value, Function f)
 		{
-			size_type offset = 0;
-			do
-			{
-				size_type index = layout_type::get_position(g, value.first, offset, capacity()) & m_mask;
-				lock_type* current_lock;
-				do
-				{
-					current_lock = layout_type::get_lock(index);
-				} while (layout_type::busy(current_lock));
-
-				if (layout_type::empty_lock(current_lock, key))
-				{
-					f(layout_type::get_value(current_lock), std::move(value));
-					layout_type::unlock(current_lock);
-					++m_number_of_elements;
-					return layout_type::get_data(current_lock);
-				}
-
-				if (layout_type::match_lock(current_lock, key))
-				{
-					f(layout_type::get_value(current_lock), std::move(value));
-					layout_type::unlock(current_lock);
-					return layout_type::get_data(current_lock);
-				}
-
-				offset = layout_type::increment_offset(offset, g);
-			} while (offset < capacity());
-
-		#if defined(GPU_DEBUG_FAST_INTEGER) || defined(GPU_DEBUG_OUT_OF_RANGE)
-			ENSURE(false, "Could not find element");
-		#endif // GPU_DEBUG_FAST_INTEGER || GPU_DEBUG_OUT_OF_RANGE
-			return end();
+			iterator result;
+			if (g.thread_rank() == 0)
+				result = insert_or_update(std::move(value), f);
+			return shfl(g, result);
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>

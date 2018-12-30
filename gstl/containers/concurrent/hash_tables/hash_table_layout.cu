@@ -20,9 +20,9 @@ namespace gpu
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::busy(const lock_type* lock_info)
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::busy(lock_type lock_info)
 		{
-			return lock_info->entry == Entry_Busy;
+			return lock_info == Entry_Busy;
 		}
 
 		template <typename Key, typename T, class Allocator>
@@ -39,9 +39,32 @@ namespace gpu
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::empty_lock(lock_type* lock_info, const key_type& key)
+		GPU_DEVICE void hash_table_layout<Key, T, Allocator>::default_transfer_const(value_type& lhs, const value_type& rhs)
 		{
-			return lock_info->entry.compare_and_swap(Entry_Free, Entry_Busy) == Entry_Free;
+			lhs = rhs;
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::empty(lock_type lock_info)
+		{
+			return lock_info == Entry_Free;
+		}
+
+		template <typename Key, typename T, class Allocator>
+		template <class Thread>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::empty(Thread g, lock_type lock_info)
+		{
+			return lock_info == Entry_Free;
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::empty_lock(lock_type lock_info, size_type index, const key_type& key)
+		{
+			if (lock_info != Entry_Free)
+				return false;
+
+			layout_type& layout = get_lock(index);
+			return layout.entry.compare_and_swap(Entry_Free, Entry_Busy) == Entry_Free;
 		}
 
 		template <typename Key, typename T, class Allocator>
@@ -54,15 +77,17 @@ namespace gpu
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::iterator hash_table_layout<Key, T, Allocator>::get_data(lock_type* lock_info)
+		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::iterator hash_table_layout<Key, T, Allocator>::get_data(size_type index)
 		{
-			return &lock_info->data;
+			layout_type& layout = get_lock(index);
+			return &layout.data;
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::lock_type* hash_table_layout<Key, T, Allocator>::get_lock(size_type offset)
+		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::lock_type hash_table_layout<Key, T, Allocator>::get_lock_info(size_type index)
 		{
-			return &m_storage[offset];
+			layout_type& layout = get_lock(index);
+			return layout.entry;
 		}
 
 		template <typename Key, typename T, class Allocator>
@@ -72,21 +97,86 @@ namespace gpu
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::value_type& hash_table_layout<Key, T, Allocator>::get_value(lock_type* lock_info)
+		template <class Thread>
+		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::size_type hash_table_layout<Key, T, Allocator>::get_position(Thread g, const key_type& key, size_type offset)
 		{
-			return lock_info->data;
+			return hasher{}(key) + offset + g.thread_rank();
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::match_lock(lock_type* lock_info, const key_type& key)
+		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::value_type& hash_table_layout<Key, T, Allocator>::get_value(size_type index)
 		{
-			return lock_info->entry.compare_and_swap(Entry_Occupied, Entry_Busy) == Entry_Occupied;
+			layout_type& layout = get_lock(index);
+			return layout.data;
 		}
 
 		template <typename Key, typename T, class Allocator>
-		GPU_DEVICE void hash_table_layout<Key, T, Allocator>::unlock(lock_type* lock_info)
+		template <class Thread>
+		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::size_type hash_table_layout<Key, T, Allocator>::increment_offset(Thread g, size_type offset)
 		{
-			lock_info->entry.store(Entry_Occupied);
+			return offset + g.size();
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::match(size_type index, const key_type& key)
+		{
+			layout_type& layout = get_lock(index);
+
+			if (layout.entry == Entry_Occupied)
+				return key_equal{}(layout.data.first, key);
+
+			return false;
+		}
+
+		template <typename Key, typename T, class Allocator>
+		template <class Thread>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::match(Thread g, size_type index, const key_type& key, size_type* winning_index)
+		{
+			layout_type& layout = get_lock(index);
+
+			bool result = false;
+			if (layout.entry == Entry_Occupied)
+				result = key_equal{}(layout.data.first, key);
+
+			auto winning_thid = first_index(g, result);
+			*winning_index = shfl(g, index, winning_thid);
+			return winning_thid != g.size();
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::match_lock(lock_type lock_info, size_type index, const key_type& key)
+		{
+			layout_type& layout = get_lock(index);
+
+			if (layout.entry == Entry_Occupied)
+				if (key_equal{}(layout.data.first, key))
+					return layout.entry.compare_and_swap(Entry_Occupied, Entry_Busy) == Entry_Occupied;
+
+			return false;
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::occupied(size_type index, const key_type& key)
+		{
+			layout_type& layout = get_lock(index);
+
+			if (layout.entry == Entry_Occupied)
+				return key_equal{}(layout.data.first, key);
+
+			return true;
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE void hash_table_layout<Key, T, Allocator>::unlock(size_type index)
+		{
+			layout_type& layout = get_lock(index);
+			layout.entry.store(Entry_Occupied);
+		}
+
+		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE typename hash_table_layout<Key, T, Allocator>::layout_type& hash_table_layout<Key, T, Allocator>::get_lock(size_type offset)
+		{
+			return m_storage[offset];
 		}
 	}
 }
