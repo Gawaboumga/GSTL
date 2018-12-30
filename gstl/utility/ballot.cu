@@ -6,6 +6,34 @@
 
 namespace gpu
 {
+	namespace detail
+	{
+		template <typename T, bool pointer_like = std::is_pointer<T>::value>
+		struct shuffle
+		{
+		};
+
+		template <typename T>
+		struct shuffle<T, true>
+		{
+			template <unsigned int tile_sz>
+			GPU_DEVICE T operator()(gpu::block_tile_t<tile_sz> g, T var, unsigned int thid) const noexcept
+			{
+				return reinterpret_cast<T>(shuffle<std::uintptr_t>{}(g, reinterpret_cast<std::uintptr_t>(var), thid));
+			}
+		};
+
+		template <typename T>
+		struct shuffle<T, false>
+		{
+			template <unsigned int tile_sz>
+			GPU_DEVICE T operator()(gpu::block_tile_t<tile_sz> g, T var, unsigned int thid) const noexcept
+			{
+				return g.shfl(var, thid);
+			}
+		};
+	}
+
 	GPU_DEVICE inline bool all(block_t g, bool value)
 	{
 		GPU_SHARED gpu::array<bool, MAX_NUMBER_OF_WARPS_PER_BLOCK> results;
@@ -141,6 +169,6 @@ namespace gpu
 		ENSURE(thid < g.size());
 	#endif // GPU_DEBUG
 
-		return g.shfl(value, thid);
+		return detail::shuffle<T>{}(g, value, thid);
 	}
 }
