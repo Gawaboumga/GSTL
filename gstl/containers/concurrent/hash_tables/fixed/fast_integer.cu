@@ -69,20 +69,46 @@ namespace gpu
 		template <typename Key, typename T, class Allocator, class HashInfo>
 		GPU_DEVICE bool fast_integer<Key, T, Allocator, HashInfo>::empty() const
 		{
-			return size_type(m_number_of_elements);
+			return size() == 0;
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>
 		GPU_DEVICE void fast_integer<Key, T, Allocator, HashInfo>::erase(const key_type& key)
 		{
+			size_type offset = 0;
+			do
+			{
+				size_type index = layout_type::get_position(key, offset) & m_mask;
+				lock_type current_lock;
+				do
+				{
+					current_lock = layout_type::get_lock_info(index);
 
+					if (layout_type::match_lock(current_lock, index, key))
+					{
+						layout_type::destroy(index);
+						--m_number_of_elements;
+						return;
+					}
+					if (layout_type::empty(current_lock))
+						return;
+				} while (layout_type::busy(current_lock));
+
+				++offset;
+			} while (offset < capacity());
+
+		#if defined(GPU_DEBUG_FAST_INTEGER) || defined(GPU_DEBUG_OUT_OF_RANGE)
+			ENSURE(false, "Could not find element");
+		#endif // GPU_DEBUG_FAST_INTEGER || GPU_DEBUG_OUT_OF_RANGE
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>
 		template <class Thread>
 		GPU_DEVICE void fast_integer<Key, T, Allocator, HashInfo>::erase(Thread g, const key_type& key)
 		{
-
+			if (g.thread_rank() == 0)
+				erase(key);
+			g.sync();
 		}
 
 		template <typename Key, typename T, class Allocator, class HashInfo>

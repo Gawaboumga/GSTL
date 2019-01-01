@@ -62,6 +62,7 @@ namespace gpu
 				GPU_DEVICE void deallocate(Thread g, allocator_type& allocator, allocated_type ptr);
 				GPU_DEVICE static void default_transfer(value_type& lhs, value_type&& rhs);
 				GPU_DEVICE static void default_transfer_const(value_type& lhs, const value_type& rhs);
+				GPU_DEVICE void destroy(size_type index);
 
 				GPU_DEVICE bool empty(lock_type lock_info);
 				template <class Thread>

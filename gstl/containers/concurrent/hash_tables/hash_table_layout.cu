@@ -45,6 +45,13 @@ namespace gpu
 		}
 
 		template <typename Key, typename T, class Allocator>
+		GPU_DEVICE void hash_table_layout<Key, T, Allocator>::destroy(size_type index)
+		{
+			layout_type& layout = get_lock(index);
+			layout.entry.store(Entry_Deleted);
+		}
+
+		template <typename Key, typename T, class Allocator>
 		GPU_DEVICE bool hash_table_layout<Key, T, Allocator>::empty(lock_type lock_info)
 		{
 			return lock_info == Entry_Free;
