@@ -19,7 +19,7 @@ inline bool launch(Function f)
 	unsigned int threads_per_block = 256u;
 	cuda::launch(
 		f,
-		{ blocks_per_grid, threads_per_block }
+		cuda::launch_configuration_t{ blocks_per_grid, threads_per_block }
 	);
 
 	auto status = cuda::outstanding_error::get();
@@ -27,3 +27,21 @@ inline bool launch(Function f)
 
 	return true;
 }
+
+template <class Function, class... Args>
+inline bool launch_kernel(Function f, Args&&... args)
+{
+	unsigned int blocks_per_grid = 64u;
+	unsigned int threads_per_block = 1024u;
+	cuda::launch(
+		f,
+		cuda::launch_configuration_t{ blocks_per_grid, threads_per_block },
+		std::forward<Args>(args)...
+	);
+
+	auto status = cuda::outstanding_error::get();
+	cuda::throw_if_error(status, "Failed to launch kernel");
+
+	return true;
+}
+

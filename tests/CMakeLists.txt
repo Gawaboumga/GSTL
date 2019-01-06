@@ -21,6 +21,8 @@ file(GLOB TEST_SOURCES
 		${TEST_FOLDER}utility/**.cu
 		${TEST_FOLDER}grid/numeric/**.cpp
 		${TEST_FOLDER}grid/numeric/**.cu
+		${TEST_FOLDER}kernel/numeric/**.cpp
+		${TEST_FOLDER}kernel/numeric/**.cu
 )
 
 add_executable(gstl_tests ${TEST_SOURCES})
