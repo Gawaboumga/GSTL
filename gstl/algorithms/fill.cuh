@@ -15,6 +15,15 @@ namespace gpu
 
 	template <class ForwardIt, typename T>
 	GPU_DEVICE GPU_CONSTEXPR void fill(ForwardIt first, ForwardIt last, const T& value);
+
+	template <class RandomIt, class Size, typename T>
+	GPU_DEVICE void fill_n(block_t g, RandomIt first, Size n, const T& value);
+
+	template <class BlockTile, class RandomIt, class Size, typename T>
+	GPU_DEVICE void fill_n(BlockTile g, RandomIt first, Size n, const T& value);
+
+	template <class OutputIt, class Size, typename T>
+	GPU_DEVICE GPU_CONSTEXPR OutputIt fill_n(OutputIt first, Size n, const T& value);
 }
 
 #include <gstl/algorithms/fill.cu>

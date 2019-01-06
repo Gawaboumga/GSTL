@@ -1,33 +1,19 @@
 #include <gstl/algorithms/generate.cuh>
 
+#include <gstl/algorithms/detail/generate.cuh>
+
 namespace gpu
 {
 	template <class RandomIt, class Generator>
-	GPU_DEVICE void generate(block_t block, RandomIt first, RandomIt last, Generator g)
+	GPU_DEVICE void generate(block_t g, RandomIt first, RandomIt last, Generator gen)
 	{
-		offset_t len = distance(first, last);
-		offset_t thid = block.thread_rank();
-		offset_t offset = 0;
-
-		while (offset + thid < len)
-		{
-			*(first + offset + thid) = g();
-			offset += block.size();
-		}
+		detail::generate(g, first, last, gen);
 	}
 
 	template <class BlockTile, class RandomIt, class Generator>
-	GPU_DEVICE void generate(BlockTile warp, RandomIt first, RandomIt last, Generator g)
+	GPU_DEVICE void generate(BlockTile g, RandomIt first, RandomIt last, Generator gen)
 	{
-		offset_t len = distance(first, last);
-		offset_t thid = warp.thread_rank();
-		offset_t offset = 0;
-
-		while (offset + thid < len)
-		{
-			*(first + offset + thid) = g();
-			offset += warp.size();
-		}
+		detail::generate(g, first, last, gen);
 	}
 
 	template <class ForwardIt, class Generator>

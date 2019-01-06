@@ -1,33 +1,19 @@
 #include <gstl/algorithms/for_each.cuh>
 
+#include <gstl/algorithms/detail/for_each.cuh>
+
 namespace gpu
 {
 	template <class RandomIt, class UnaryFunction>
 	GPU_DEVICE void for_each(block_t g, RandomIt first, RandomIt last, UnaryFunction unary_op)
 	{
-		offset_t len = distance(first, last);
-		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
-
-		while (offset + thid < len)
-		{
-			unary_op(*(first + offset + thid));
-			offset += g.size();
-		}
+		detail::for_each(g, first, last, unary_op);
 	}
 
 	template <class BlockTile, class RandomIt, class UnaryFunction>
 	GPU_DEVICE void for_each(BlockTile g, RandomIt first, RandomIt last, UnaryFunction unary_op)
 	{
-		offset_t len = distance(first, last);
-		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
-
-		while (offset + thid < len)
-		{
-			unary_op(*(first + offset + thid));
-			offset += g.size();
-		}
+		detail::for_each(g, first, last, unary_op);
 	}
 
 	template <class ForwardIt, class UnaryFunction>
@@ -40,30 +26,14 @@ namespace gpu
 	template <class ForwardIt, class Size, class UnaryFunction>
 	GPU_DEVICE ForwardIt for_each_n(block_t g, ForwardIt first, Size n, UnaryFunction unary_op)
 	{
-		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
-
-		while (offset + thid < n)
-		{
-			unary_op(*(first + offset + thid));
-			offset += g.size();
-		}
-
+		detail::for_each_n(g, first, n, unary_op);
 		return first + n;
 	}
 
 	template <class BlockTile, class ForwardIt, class Size, class UnaryFunction>
 	GPU_DEVICE ForwardIt for_each_n(BlockTile g, ForwardIt first, Size n, UnaryFunction unary_op)
 	{
-		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
-
-		while (offset + thid < n)
-		{
-			unary_op(*(first + offset + thid));
-			offset += g.size();
-		}
-
+		detail::for_each_n(g, first, n, unary_op);
 		return first + n;
 	}
 

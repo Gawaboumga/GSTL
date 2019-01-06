@@ -18,6 +18,32 @@
 
 namespace gpu
 {
+	namespace detail
+	{
+		struct grid_t
+		{
+			GPU_DEVICE inline dim3 grid_dim() const
+			{
+				return gridDim;
+			}
+
+			GPU_DEVICE inline unsigned int size() const
+			{
+				return blockDim.x * gridDim.x;
+			}
+
+			GPU_DEVICE inline unsigned int thread_rank() const
+			{
+				return blockIdx.x * blockDim.x + threadIdx.x;
+			}
+		};
+
+		GPU_DEVICE inline grid_t this_grid()
+		{
+			return grid_t();
+		}
+	}
+
 	using I32 = std::int32_t;
 	using I64 = std::int64_t;
 
@@ -29,9 +55,15 @@ namespace gpu
 	using size_t = I32;
 	using uintptr_t = std::uintptr_t;
 
+	using grid_t = detail::grid_t;
 	using block_t = cooperative_groups::thread_block;
 	template <unsigned int tile_sz>
 	using block_tile_t = cooperative_groups::thread_block_tile<tile_sz>;
+
+	GPU_DEVICE inline grid_t this_grid()
+	{
+		return detail::this_grid();
+	}
 
 	GPU_DEVICE inline block_t this_thread_block()
 	{
