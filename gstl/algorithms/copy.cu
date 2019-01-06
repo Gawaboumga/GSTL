@@ -49,7 +49,7 @@ namespace gpu
 			if (is_valid)
 				*(d_first + destination_offset + relative_offset) = *(first + offset + thid);
 			offset += g.size();
-			relative_offset = shfl(g, relative_offset, g.size() - 1) + 1;
+			relative_offset = shfl(g, relative_offset, g.size() - 1);
 			destination_offset += relative_offset;
 		} while (offset < len);
 
@@ -78,7 +78,7 @@ namespace gpu
 			if (is_valid)
 				*(d_first + destination_offset + relative_offset) = *(first + offset + thid);
 			offset += g.size();
-			relative_offset = shfl(g, relative_offset, g.size() - 1) + 1;
+			relative_offset = shfl(g, relative_offset, g.size() - 1);
 			destination_offset += relative_offset;
 		} while (offset < len);
 

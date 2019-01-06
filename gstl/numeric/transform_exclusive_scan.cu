@@ -161,25 +161,21 @@ namespace gpu
 
 		block_tile_t<MAX_NUMBER_OF_THREADS_PER_WARP> warp = tiled_partition<MAX_NUMBER_OF_THREADS_PER_WARP>(g);
 		offset_t warp_id = g.thread_rank() / warp.size();
-		T result;
-		if (warp_id == 0)
-			result = transform_exclusive_scan(warp, value, binary_op);
-		else
-			result = transform_inclusive_scan(warp, value, binary_op);
+		T result = transform_exclusive_scan(warp, value, binary_op);
 
 		if (warp.size() * (warp_id + 1) - 1 == g.thread_rank())
-			warp_results[warp_id] = result;
+			warp_results[warp_id] = binary_op(result, value);
 		g.sync();
 
 		if (g.thread_rank() < g.size() / warp.size())
 		{
-			T warp_scan = transform_inclusive_scan(warp, warp_results[g.thread_rank()], binary_op, 0);
+			T warp_scan = transform_exclusive_scan(warp, warp_results[g.thread_rank()], binary_op, 0);
 			warp_results[g.thread_rank()] = warp_scan;
 		}
 		g.sync();
 
 		if (warp_id != 0)
-			result = binary_op(result, warp_results[warp_id - 1]);
+			result = binary_op(result, warp_results[warp_id]);
 		return binary_op(result, init);
 	}
 
@@ -189,11 +185,12 @@ namespace gpu
 		for (offset_t offset = 1; offset < g.size(); offset <<= 1)
 		{
 			T y = g.shfl_up(value, offset);
-			if (g.thread_rank() > offset)
+			if (g.thread_rank() >= offset)
 				value = binary_op(value, y);
 		}
 
 		value = binary_op(value, init);
+		value = g.shfl_up(value, 1);
 		if (g.thread_rank() == 0)
 			value = init;
 		return value;

@@ -25,11 +25,17 @@ namespace gpu
 	template <class InputIt, class OutputIt, typename T, class BinaryOperation>
 	GPU_DEVICE GPU_CONSTEXPR OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init, BinaryOperation binary_op);
 
-	template <class BlockTile, typename T>
-	GPU_DEVICE T exclusive_scan(BlockTile g, T value, T init);
+	template <typename T>
+	GPU_DEVICE T exclusive_scan(block_t g, T value, T init);
 
-	template <class BlockTile, typename T, class BinaryOperation>
-	GPU_DEVICE T exclusive_scan(BlockTile g, T value, T init, BinaryOperation binary_op);
+	template <typename T, unsigned int tile_sz>
+	GPU_DEVICE T exclusive_scan(block_tile_t<tile_sz> g, T value, T init);
+
+	template <typename T, class BinaryOperation>
+	GPU_DEVICE T exclusive_scan(block_t g, T value, T init, BinaryOperation binary_op);
+
+	template <typename T, class BinaryOperation, unsigned int tile_sz>
+	GPU_DEVICE T exclusive_scan(block_tile_t<tile_sz> g, T value, T init, BinaryOperation binary_op);
 }
 
 #include <gstl/numeric/exclusive_scan.cu>

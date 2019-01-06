@@ -41,14 +41,26 @@ namespace gpu
 		return transform_exclusive_scan(g, first, last, d_first, binary_op, identity(), init);
 	}
 
-	template <class BlockTile, typename T>
-	GPU_DEVICE T exclusive_scan(BlockTile g, T value, T init)
+	template <typename T>
+	GPU_DEVICE T exclusive_scan(block_t g, T value, T init)
 	{
 		return exclusive_scan(g, value, init, plus<>());
 	}
 
-	template <class BlockTile, typename T, class BinaryOperation>
-	GPU_DEVICE T exclusive_scan(BlockTile g, T value, T init, BinaryOperation binary_op)
+	template <typename T, unsigned int tile_sz>
+	GPU_DEVICE T exclusive_scan(block_tile_t<tile_sz> g, T value, T init)
+	{
+		return exclusive_scan(g, value, init, plus<>());
+	}
+
+	template <typename T, class BinaryOperation>
+	GPU_DEVICE T exclusive_scan(block_t g, T value, T init, BinaryOperation binary_op)
+	{
+		return transform_exclusive_scan(g, value, binary_op, init);
+	}
+
+	template <typename T, class BinaryOperation, unsigned int tile_sz>
+	GPU_DEVICE T exclusive_scan(block_tile_t<tile_sz> g, T value, T init, BinaryOperation binary_op)
 	{
 		return transform_exclusive_scan(g, value, binary_op, init);
 	}
