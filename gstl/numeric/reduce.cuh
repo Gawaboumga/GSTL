@@ -41,11 +41,17 @@ namespace gpu
 	template <class InputIt, typename T, class BinaryOp>
 	GPU_DEVICE T reduce(InputIt first, InputIt last, T init, BinaryOp binary_op);
 
+	template <typename T>
+	GPU_DEVICE group_result<T> reduce(block_t g, T value);
+
 	template <class BlockTile, typename T>
 	GPU_DEVICE group_result<T> reduce(BlockTile g, T value);
 
 	template <class BlockTile, typename T>
 	GPU_DEVICE group_result<T> reduce(BlockTile g, T value, unsigned int maximal_lane);
+
+	template <typename T, class BinaryOp>
+	GPU_DEVICE group_result<T> reduce(block_t g, T value, BinaryOp binary_op);
 
 	template <class BlockTile, typename T, class BinaryOp>
 	GPU_DEVICE group_result<T> reduce(BlockTile g, T value, BinaryOp binary_op);

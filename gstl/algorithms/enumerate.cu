@@ -1,6 +1,6 @@
 #include <gstl/algorithms/enumerate.cuh>
 
-#include <gstl/algorithms/detail/for_each.cuh>
+#include <gstl/algorithms/detail/enumerate.cuh>
 
 namespace gpu
 {

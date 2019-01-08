@@ -127,6 +127,12 @@ namespace gpu
 		return init;
 	}
 
+	template <typename T>
+	GPU_DEVICE group_result<T> reduce(block_t g, T value)
+	{
+		return reduce(g, value, plus<>());
+	}
+
 	template <class BlockTile, typename T>
 	GPU_DEVICE group_result<T> reduce(BlockTile g, T value)
 	{
@@ -137,6 +143,25 @@ namespace gpu
 	GPU_DEVICE group_result<T> reduce(BlockTile g, T value, unsigned int maximal_lane)
 	{
 		return reduce(g, value, plus<>(), maximal_lane);
+	}
+
+	template <typename T, class BinaryOp>
+	GPU_DEVICE group_result<T> reduce(block_t g, T value, BinaryOp binary_op)
+	{
+		block_tile_t<32> warp = tiled_partition<32>(g);
+		GPU_SHARED T shared_data[MAX_NUMBER_OF_WARPS_PER_BLOCK];
+
+		group_result<T> result = reduce(warp, value, binary_op);
+		if (warp.thread_rank() == 0)
+			shared_data[g.thread_rank() / 32] = result;
+		g.sync();
+
+		offset_t number_of_actives_warps = g.size() / MAX_NUMBER_OF_WARPS_PER_BLOCK;
+		T thread_result;
+		if (g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK < number_of_actives_warps)
+			thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
+		warp.sync();
+		return reduce(warp, thread_result, binary_op, number_of_actives_warps - 1);
 	}
 
 	template <class BlockTile, typename T, class BinaryOp>

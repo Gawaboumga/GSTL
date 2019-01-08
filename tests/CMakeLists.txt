@@ -19,8 +19,12 @@ file(GLOB TEST_SOURCES
 		${TEST_FOLDER}random/**.cu
 		${TEST_FOLDER}utility/**.cpp
 		${TEST_FOLDER}utility/**.cu
+		${TEST_FOLDER}grid/algorithms/**.cpp
+		${TEST_FOLDER}grid/algorithms/**.cu
 		${TEST_FOLDER}grid/numeric/**.cpp
 		${TEST_FOLDER}grid/numeric/**.cu
+		${TEST_FOLDER}kernel/algorithms/**.cpp
+		${TEST_FOLDER}kernel/algorithms/**.cu
 		${TEST_FOLDER}kernel/numeric/**.cpp
 		${TEST_FOLDER}kernel/numeric/**.cu
 )

@@ -9,12 +9,6 @@ namespace gpu
 {
 	namespace detail
 	{
-		template <class Thread, class RandomIt, class Function>
-		GPU_DEVICE void enumerate(Thread g, RandomIt first, RandomIt last, Function f);
-
-		template <class Thread, class RandomIt, class Size, class Function>
-		GPU_DEVICE void enumerate(Thread g, RandomIt first, Size n, Function f);
-
 		template <class Thread, class RandomIt, class UnaryFunction>
 		GPU_DEVICE void for_each(Thread g, RandomIt first, RandomIt last, UnaryFunction unary_op);
 
