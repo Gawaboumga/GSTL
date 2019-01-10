@@ -35,6 +35,7 @@ TEST_CASE("GRID REDUCE", "[GRID_REDUCE][NUMERIC]")
 		cuda::memory::copy(d_one.get(), h_one.get(), sizeof(int));
 
 		gpu::kernel::fill(d_input.get(), d_input.get() + capacity, d_one.get());
+		gpu::kernel::sync();
 		unsigned int blocks_per_grid = 32u;
 		unsigned int threads_per_block = 256u;
 		gpu::kernel::launch_kernel(

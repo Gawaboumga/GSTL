@@ -3,26 +3,35 @@
 
 #include <base_test.cuh>
 
-#include <gstl/grid/algorithms/fill.cuh>
+#include <gstl/kernel/algorithms/enumerate.cuh>
+#include <gstl/kernel/algorithms/fill.cuh>
 
-template <class RandomIt, typename T, int value>
-GPU_GLOBAL void test_kernel_exclusive_scan_prepare_fill(RandomIt first, RandomIt last)
+struct test_kernel_exclusive_scan_functor
 {
-	gpu::grid_t grid = gpu::this_grid();
-	gpu::fill(grid, first, last, value);
-}
+	GPU_DEVICE void operator()(int value, gpu::offset_t offset)
+	{
+		ENSURE(value == offset);
+	}
+};
 
 TEST_CASE("KERNEL EXCLUSIVE SCAN", "[KERNEL_EXCLUSIVE_SCAN][NUMERIC]")
 {
-	SECTION("GRID exclusive_scan")
+	SECTION("KERNEL exclusive_scan")
 	{
 		auto current_device = cuda::device::current::get();
-		unsigned int capacity = 1000;
+		unsigned int capacity = 32 * 1024 * 4;
 		auto d_input = cuda::memory::device::make_unique<int[]>(current_device, capacity);
 		auto d_output = cuda::memory::device::make_unique<int[]>(current_device, capacity);
 
-		CHECK(launch_kernel(test_kernel_exclusive_scan_prepare_fill<int*, int, 1>, d_input.get(), d_input.get() + capacity));
-		CHECK(launch_kernel(test_kernel_exclusive_scan_prepare_fill<int*, int, 0>, d_output.get(), d_output.get() + capacity));
-		gpu::exclusive_scan(d_input.get(), d_input.get() + 200, d_output.get());
+		auto h_one = std::make_unique<int>(1);
+		auto d_one = cuda::memory::device::make_unique<int>(current_device);
+		cuda::memory::copy(d_one.get(), h_one.get(), sizeof(int));
+
+		gpu::kernel::fill(d_input.get(), d_input.get() + capacity, d_one.get());
+		gpu::kernel::sync();
+		gpu::kernel::exclusive_scan(d_input.get(), d_input.get() + capacity, d_output.get());
+		gpu::kernel::sync();
+
+		gpu::kernel::enumerate(d_output.get(), d_output.get() + capacity, test_kernel_exclusive_scan_functor{});
 	}
 }

@@ -1,4 +1,4 @@
-#include <gstl/kernel/algorithms/fill.cuh>
+#include <gstl/kernel/numeric/reduce.cuh>
 
 #include <gstl/grid/numeric/reduce.cuh>
 #include <gstl/kernel/launch_kernel.cuh>
