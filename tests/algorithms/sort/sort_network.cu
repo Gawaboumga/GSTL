@@ -1,4 +1,5 @@
 #include <gstl/algorithms/sort/bitonic_sort.cuh>
+#include <gstl/algorithms/sort/odd_even_sort.cuh>
 #include <Catch2/catch.hpp>
 
 #include <base_test.cuh>
@@ -33,14 +34,28 @@ GPU_GLOBAL void test_sort_network_block()
 	GPU_SHARED gpu::array<int, block_size> copy;
 
 	test_sort_network_generate_random_number(block, data);
-	gpu::copy(data.begin(), data.end(), copy.begin());
-	block.sync();
 
-	gpu::bitonic_sort(block, copy.begin(), copy.end());
-	block.sync();
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
 
-	ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
-	block.sync();
+		gpu::bitonic_sort(block, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
+
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
+
+		gpu::odd_even_sort(block, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
 }
 
 template <unsigned int block_size>
@@ -53,15 +68,30 @@ GPU_GLOBAL void test_sort_network_warp()
 	GPU_SHARED gpu::array<int, block_size> copy;
 
 	test_sort_network_generate_random_number(block, data);
-	gpu::copy(data.begin(), data.end(), copy.begin());
-	block.sync();
 
-	if (block.thread_rank() < warp.size())
-		gpu::bitonic_sort(warp, copy.begin(), copy.end());
-	block.sync();
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
 
-	ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
-	block.sync();
+		if (block.thread_rank() < warp.size())
+			gpu::bitonic_sort(warp, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
+
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
+
+		if (block.thread_rank() < warp.size())
+			gpu::odd_even_sort(warp, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
 }
 
 TEST_CASE("SORT_NETWORK", "[SORT_NETWORK][ALGORITHM]")

@@ -36,7 +36,7 @@ namespace gpu
 			while (thid < stop)
 			{
 				f(thid);
-				thid += g.size() * step + g.thread_rank() * step;
+				thid += g.size() * step;
 			}
 		}
 	}
