@@ -15,6 +15,15 @@ namespace gpu
 
 	template <class Input, class OutputIt, class MappingFunction>
 	GPU_DEVICE GPU_CONSTEXPR void histogram(Input first, Input last, OutputIt d_first, MappingFunction unary_op);
+
+	template <class RandomIt, class OutputIt, class MappingFunction, class Incrementer>
+	GPU_DEVICE void histogram(block_t g, RandomIt first, RandomIt last, OutputIt d_first, MappingFunction unary_op, Incrementer f);
+
+	template <class BlockTile, class RandomIt, class OutputIt, class MappingFunction, class Incrementer>
+	GPU_DEVICE void histogram(BlockTile g, RandomIt first, RandomIt last, OutputIt d_first, MappingFunction unary_op, Incrementer f);
+
+	template <class Input, class OutputIt, class MappingFunction, class Incrementer>
+	GPU_DEVICE GPU_CONSTEXPR void histogram(Input first, Input last, OutputIt d_first, MappingFunction unary_op, Incrementer f);
 }
 
 #include <gstl/algorithms/histogram.cu>
