@@ -64,7 +64,7 @@ namespace gpu
 	GPU_DEVICE ForwardIt is_sorted_until(block_t g, ForwardIt first, ForwardIt last, Compare comp)
 	{
 		ForwardIt it = adjacent_find(g, first, last, [&comp](const auto& lhs, const auto& rhs) {
-			return comp(lhs, rhs);
+			return comp(rhs, lhs);
 		});
 		return it == last ? last : next(it);
 	}
@@ -73,7 +73,7 @@ namespace gpu
 	GPU_DEVICE ForwardIt is_sorted_until(BlockTile g, ForwardIt first, ForwardIt last, Compare comp)
 	{
 		ForwardIt it = adjacent_find(g, first, last, [&comp](const auto& lhs, const auto& rhs) {
-			return comp(lhs, rhs);
+			return comp(rhs, lhs);
 		});
 		return it == last ? last : next(it);
 	}
@@ -82,7 +82,7 @@ namespace gpu
 	GPU_DEVICE GPU_CONSTEXPR ForwardIt is_sorted_until(ForwardIt first, ForwardIt last, Compare comp)
 	{
 		ForwardIt it = adjacent_find(first, last, [&comp](const auto& lhs, const auto& rhs) {
-			return comp(lhs, rhs);
+			return comp(rhs, lhs);
 		});
 		return it == last ? last : next(it);
 	}

@@ -15,13 +15,14 @@ GPU_GLOBAL void test_adjacent_find_block()
 	gpu::fill(block, data.begin(), data.end(), 1);
 	block.sync();
 
-	auto it = gpu::adjacent_find(block, data.begin(), data.end(), gpu::equal_to<>());
+	auto it = gpu::adjacent_find(block, data.begin(), data.end(), gpu::less<>());
 	ENSURE(it == data.end());
 
 	if (block.thread_rank() == 0)
 		data[(block_size * 3) / 4] = 2;
+	block.sync();
 
-	it = gpu::adjacent_find(block, data.begin(), data.end(), gpu::equal_to<>());
+	it = gpu::adjacent_find(block, data.begin(), data.end(), gpu::less<>());
 	ENSURE(it == (&data[(block_size * 3) / 4] - 1));
 }
 
@@ -38,13 +39,14 @@ GPU_GLOBAL void test_adjacent_find_warp()
 	if (block.thread_rank() >= warp.size())
 		return;
 
-	auto it = gpu::adjacent_find(warp, data.begin(), data.end(), gpu::equal_to<>());
+	auto it = gpu::adjacent_find(warp, data.begin(), data.end(), gpu::less<>());
 	ENSURE(it == data.end());
 
 	if (block.thread_rank() == 0)
 		data[(block_size * 3) / 4] = 2;
+	warp.sync();
 
-	it = gpu::adjacent_find(warp, data.begin(), data.end(), gpu::equal_to<>());
+	it = gpu::adjacent_find(warp, data.begin(), data.end(), gpu::less<>());
 	ENSURE(it == (&data[(block_size * 3) / 4] - 1));
 }
 

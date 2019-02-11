@@ -34,7 +34,7 @@ namespace gpu
 		{
 			bool result = false;
 			if (offset + thid + 1 < len)
-				result = !p(*(first + offset + thid), *(first + offset + thid + 1));
+				result = p(*(first + offset + thid), *(first + offset + thid + 1));
 
 			offset_t index = first_index(g, result);
 			if (index != g.size())
@@ -57,7 +57,7 @@ namespace gpu
 		{
 			bool result = false;
 			if (offset + thid + 1 < len)
-				result = !p(*(first + offset + thid), *(first + offset + thid + 1));
+				result = p(*(first + offset + thid), *(first + offset + thid + 1));
 
 			offset_t index = first_index(g, result);
 			if (index != g.size())
@@ -78,7 +78,7 @@ namespace gpu
 		ForwardIt next = first;
 		++next;
 		for (; next != last; ++next, ++first)
-			if (!p(*first, *next))
+			if (p(*first, *next))
 				return first;
 
 		return last;
