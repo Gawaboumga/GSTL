@@ -6,6 +6,15 @@ namespace gpu
 {
 	namespace detail
 	{
+		template <typename T>
+		struct atomic_add
+		{
+			GPU_DEVICE T operator()(T* address, T val) const noexcept
+			{
+				return atomicAdd(address, val);
+			}
+		};
+
 		template <typename T, bool enum_like = std::is_enum<T>::value>
 		struct atomic_cas
 		{
@@ -23,28 +32,10 @@ namespace gpu
 			}
 		};
 
-		template <>
-		struct atomic_cas<int, false>
+		template <typename T>
+		struct atomic_cas<T, false>
 		{
-			GPU_DEVICE int operator()(int* address, int compare, int val) const noexcept
-			{
-				return atomicCAS(address, compare, val);
-			}
-		};
-
-		template <>
-		struct atomic_cas<unsigned int, false>
-		{
-			GPU_DEVICE unsigned int operator()(unsigned int* address, unsigned int compare, unsigned int val) const noexcept
-			{
-				return atomicCAS(address, compare, val);
-			}
-		};
-
-		template <>
-		struct atomic_cas<unsigned long long int, false>
-		{
-			GPU_DEVICE unsigned long long int operator()(unsigned long long int* address, unsigned long long int compare, unsigned long long int val) const noexcept
+			GPU_DEVICE T operator()(T* address, T compare, T val) const noexcept
 			{
 				return atomicCAS(address, compare, val);
 			}
@@ -66,37 +57,10 @@ namespace gpu
 			}
 		};
 
-		template <>
-		struct atomic_exchange<int, false>
+		template <typename T>
+		struct atomic_exchange<T, false>
 		{
-			GPU_DEVICE int operator()(int* address, int val) const noexcept
-			{
-				return atomicExch(address, val);
-			}
-		};
-
-		template <>
-		struct atomic_exchange<unsigned int, false>
-		{
-			GPU_DEVICE unsigned int operator()(unsigned int* address, unsigned int val) const noexcept
-			{
-				return atomicExch(address, val);
-			}
-		};
-
-		template <>
-		struct atomic_exchange<unsigned long long int, false>
-		{
-			GPU_DEVICE unsigned long long int operator()(unsigned long long int* address, unsigned long long int val) const noexcept
-			{
-				return atomicExch(address, val);
-			}
-		};
-
-		template <>
-		struct atomic_exchange<float, false>
-		{
-			GPU_DEVICE float operator()(float* address, float val) const noexcept
+			GPU_DEVICE T operator()(T* address, T val) const noexcept
 			{
 				return atomicExch(address, val);
 			}
