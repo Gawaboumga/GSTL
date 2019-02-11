@@ -4,95 +4,95 @@ namespace gpu
 {
 	namespace detail
 	{
-		template <typename T>
+		template <typename T, bool arithmetic = std::is_arithmetic<T>::value, bool four_bytes_or_less = sizeof(T) <= 4>
 		struct brev
 		{
 		};
 
-		template <>
-		struct brev<unsigned int>
+		template <typename T>
+		struct brev<T, true, true>
 		{
-			GPU_DEVICE unsigned int operator()(unsigned int x) const
+			GPU_DEVICE T operator()(T x) const
 			{
-				return __brev(x);
-			}
-		};
-
-		template <>
-		struct brev<unsigned long long>
-		{
-			GPU_DEVICE unsigned long long operator()(unsigned long long x) const
-			{
-				return __brevll(x);
+				return static_cast<T>(__brev(static_cast<unsigned int>(x)));
 			}
 		};
 
 		template <typename T>
+		struct brev<T, true, false>
+		{
+			GPU_DEVICE T operator()(T x) const
+			{
+				return static_cast<T>(__brevll(static_cast<unsigned long long int>(x)));
+			}
+		};
+
+		template <typename T, bool arithmetic = std::is_arithmetic<T>::value, bool four_bytes_or_less = sizeof(T) <= 4>
 		struct clz
 		{
 		};
 
-		template <>
-		struct clz<unsigned int>
+		template <typename T>
+		struct clz<T, true, true>
 		{
-			GPU_DEVICE unsigned int operator()(unsigned int x) const
+			GPU_DEVICE T operator()(T x) const
 			{
-				return __clz(x);
-			}
-		};
-
-		template <>
-		struct clz<unsigned long long>
-		{
-			GPU_DEVICE unsigned long long operator()(unsigned long long x) const
-			{
-				return __clzll(x);
+				return static_cast<T>(__clz(static_cast<unsigned int>(x)));
 			}
 		};
 
 		template <typename T>
+		struct clz<T, true, false>
+		{
+			GPU_DEVICE T operator()(T x) const
+			{
+				return static_cast<T>(__clzll(static_cast<unsigned long long int>(x)));
+			}
+		};
+
+		template <typename T, bool arithmetic = std::is_arithmetic<T>::value, bool four_bytes_or_less = sizeof(T) <= 4>
 		struct ffs
 		{
 		};
 
-		template <>
-		struct ffs<unsigned int>
+		template <typename T>
+		struct ffs<T, true, true>
 		{
-			GPU_DEVICE unsigned int operator()(unsigned int x) const
+			GPU_DEVICE T operator()(T x) const
 			{
-				return __ffs(x);
-			}
-		};
-
-		template <>
-		struct ffs<unsigned long long>
-		{
-			GPU_DEVICE unsigned long long operator()(unsigned long long x) const
-			{
-				return __ffsll(x);
+				return static_cast<T>(__ffs(static_cast<unsigned int>(x)));
 			}
 		};
 
 		template <typename T>
+		struct ffs<T, true, false>
+		{
+			GPU_DEVICE T operator()(T x) const
+			{
+				return static_cast<T>(__ffsll(static_cast<unsigned long long int>(x)));
+			}
+		};
+
+		template <typename T, bool arithmetic = std::is_arithmetic<T>::value, bool four_bytes_or_less = sizeof(T) <= 4>
 		struct popc
 		{
 		};
 
-		template <>
-		struct popc<unsigned int>
+		template <typename T>
+		struct popc<T, true, true>
 		{
-			GPU_DEVICE unsigned int operator()(unsigned int x) const
+			GPU_DEVICE T operator()(T x) const
 			{
-				return __popc(x);
+				return static_cast<T>(__popc(static_cast<unsigned int>(x)));
 			}
 		};
 
-		template <>
-		struct popc<unsigned long long>
+		template <typename T>
+		struct popc<T, true, false>
 		{
-			GPU_DEVICE unsigned long long operator()(unsigned long long x) const
+			GPU_DEVICE T operator()(T x) const
 			{
-				return __popcll(x);
+				return static_cast<T>(__popcll(static_cast<unsigned long long int>(x)));
 			}
 		};
 	}
