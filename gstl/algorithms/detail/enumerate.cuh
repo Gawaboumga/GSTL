@@ -13,7 +13,7 @@ namespace gpu
 		GPU_DEVICE void enumerate(Thread g, RandomIt first, RandomIt last, Function f);
 
 		template <class Thread, class RandomIt, class Size, class Function>
-		GPU_DEVICE void enumerate(Thread g, RandomIt first, Size n, Function f);
+		GPU_DEVICE void enumerate_n(Thread g, RandomIt first, Size n, Function f);
 	}
 }
 
