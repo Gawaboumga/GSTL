@@ -61,26 +61,25 @@ namespace gpu
 	{
 		offset_t len = distance(first, last);
 		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
 		offset_t destination_offset = 0;
 
 		do
 		{
 			offset_t relative_offset = 0;
 			bool is_valid = false;
-			if (offset + thid < len)
-				is_valid = p(*(first + offset + thid));
+			if (thid < len)
+				is_valid = p(*(first + thid));
 			if (is_valid)
 				relative_offset = 1;
 
 			relative_offset = exclusive_scan(g, relative_offset, 0);
 
 			if (is_valid)
-				*(d_first + destination_offset + relative_offset) = *(first + offset + thid);
-			offset += g.size();
+				*(d_first + destination_offset + relative_offset) = *(first + thid);
+			thid += g.size();
 			relative_offset = shfl(g, relative_offset, g.size() - 1);
 			destination_offset += relative_offset;
-		} while (offset < len);
+		} while (thid < len);
 
 		return d_first + destination_offset;
 	}
@@ -102,12 +101,11 @@ namespace gpu
 	GPU_DEVICE ForwardIt copy_n(block_t g, RandomIt first, Size count, ForwardIt d_first)
 	{
 		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
 
-		while (offset + thid < count)
+		while (thid < count)
 		{
-			*(d_first + offset + thid) = *(first + offset + thid);
-			offset += g.size();
+			*(d_first + thid) = *(first + thid);
+			thid += g.size();
 		}
 	}
 
@@ -115,12 +113,11 @@ namespace gpu
 	GPU_DEVICE ForwardIt copy_n(BlockTile g, RandomIt first, Size count, ForwardIt d_first)
 	{
 		offset_t thid = g.thread_rank();
-		offset_t offset = 0;
 
-		while (offset + thid < count)
+		while (thid < count)
 		{
-			*(d_first + offset + thid) = *(first + offset + thid);
-			offset += g.size();
+			*(d_first + thid) = *(first + thid);
+			thid += g.size();
 		}
 	}
 
