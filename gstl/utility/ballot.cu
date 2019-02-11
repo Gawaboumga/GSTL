@@ -13,6 +13,16 @@ namespace gpu
 		{
 		};
 
+		template <>
+		struct shuffle<std::uintptr_t, false>
+		{
+			template <unsigned int tile_sz>
+			GPU_DEVICE std::uintptr_t operator()(gpu::block_tile_t<tile_sz> g, std::uintptr_t var, unsigned int thid) const noexcept
+			{
+				return g.shfl(var, thid);
+			}
+		};
+
 		template <typename T>
 		struct shuffle<T, true>
 		{
