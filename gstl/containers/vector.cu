@@ -168,7 +168,9 @@ namespace gpu
 			g.sync();
 
 			uninitialized_default_construct_n(g, m_begin, count);
-			m_end = m_begin + count;
+			if (g.thread_rank() == 0)
+				m_end = m_begin + count;
+			g.sync();
 		}
 	}
 
@@ -209,7 +211,9 @@ namespace gpu
 			g.sync();
 
 			uninitialized_copy(g, first, last, m_begin);
-			m_end = m_begin + len;
+			if (g.thread_rank() == 0)
+				m_end = m_begin + len;
+			g.sync();
 		}
 	}
 
