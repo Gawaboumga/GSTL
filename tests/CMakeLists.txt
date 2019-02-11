@@ -3,6 +3,8 @@ file(GLOB TEST_SOURCES
 		${TEST_FOLDER}main.cpp
 		${TEST_FOLDER}algorithms/**.cpp
 		${TEST_FOLDER}algorithms/**.cu
+		${TEST_FOLDER}algorithms/sort/**.cpp
+		${TEST_FOLDER}algorithms/sort/**.cu
 		${TEST_FOLDER}allocators/**.cpp
 		${TEST_FOLDER}allocators/**.cu
 		${TEST_FOLDER}containers/**.cpp

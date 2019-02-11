@@ -28,8 +28,8 @@ namespace gpu
 	template <class BinaryOperation, typename T>
 	GPU_DEVICE T transform_exclusive_scan(block_t g, T value, BinaryOperation binary_op, T init);
 
-	template <class BlockTile, class BinaryOperation, typename T>
-	GPU_DEVICE T transform_exclusive_scan(BlockTile g, T value, BinaryOperation binary_op, T init = T());
+	template <class BinaryOperation, typename T, unsigned int tile_sz>
+	GPU_DEVICE T transform_exclusive_scan(block_tile_t<tile_sz> g, T value, BinaryOperation binary_op, T init);
 }
 
 #include <gstl/numeric/transform_exclusive_scan.cu>

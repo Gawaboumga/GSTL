@@ -148,10 +148,11 @@ namespace gpu
 		while (first != last)
 		{
 			*d_first = init;
-			init = binary_op(init, *first);
+			init = binary_op(init, unary_op(*first));
 			++first;
 			++d_first;
 		}
+		return d_first;
 	}
 
 	template <class BinaryOperation, typename T>
@@ -161,7 +162,7 @@ namespace gpu
 
 		block_tile_t<MAX_NUMBER_OF_THREADS_PER_WARP> warp = tiled_partition<MAX_NUMBER_OF_THREADS_PER_WARP>(g);
 		offset_t warp_id = g.thread_rank() / warp.size();
-		T result = transform_exclusive_scan(warp, value, binary_op);
+		T result = transform_exclusive_scan(warp, value, binary_op, T());
 
 		if (warp.size() * (warp_id + 1) - 1 == g.thread_rank())
 			warp_results[warp_id] = binary_op(result, value);
@@ -169,7 +170,7 @@ namespace gpu
 
 		if (g.thread_rank() < g.size() / warp.size())
 		{
-			T warp_scan = transform_exclusive_scan(warp, warp_results[g.thread_rank()], binary_op, 0);
+			T warp_scan = transform_exclusive_scan(warp, warp_results[g.thread_rank()], binary_op, T());
 			warp_results[g.thread_rank()] = warp_scan;
 		}
 		g.sync();
@@ -179,8 +180,8 @@ namespace gpu
 		return binary_op(result, init);
 	}
 
-	template <class BlockTile, class BinaryOperation, typename T>
-	GPU_DEVICE T transform_exclusive_scan(BlockTile g, T value, BinaryOperation binary_op, T init)
+	template <class BinaryOperation, typename T, unsigned int tile_sz>
+	GPU_DEVICE T transform_exclusive_scan(block_tile_t<tile_sz> g, T value, BinaryOperation binary_op, T init)
 	{
 		for (offset_t offset = 1; offset < g.size(); offset <<= 1)
 		{
