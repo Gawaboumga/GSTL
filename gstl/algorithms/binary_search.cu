@@ -58,6 +58,50 @@ namespace gpu
 			else
 				return min(it + first_index(g, !result), last);
 		}
+
+		template <class Threads, class RandomIt, typename T, class BinaryPredicate>
+		GPU_DEVICE RandomIt upper_bound(Threads g, RandomIt first, RandomIt last, const T& value, BinaryPredicate p)
+		{
+			RandomIt it;
+			typename std::iterator_traits<RandomIt>::difference_type count, step;
+			count = distance(first, last);
+
+			while (count > g.size())
+			{
+				it = first;
+				step = count / 2;
+				unsigned int shift = gpu::ffs(g.size()) - 1;
+				step >>= shift;
+				step <<= shift;
+				it += step;
+
+				bool result = false;
+				if (it + g.thread_rank() < last)
+					result = !p(value, *(it + g.thread_rank()));
+
+				if (all(g, result))
+				{
+					first = it + g.size();
+					count -= step + g.size();
+				}
+				else if (all(g, !result))
+					count = step;
+				else
+					return it + first_index(g, !result);
+			}
+
+			it = first;
+			bool result = false;
+			if (it + g.thread_rank() < last)
+				result = !p(value, *(it + g.thread_rank()));
+
+			if (all(g, result))
+				return min(it + g.size(), last);
+			else if (all(g, !result))
+				return it;
+			else
+				return min(it + first_index(g, !result), last);
+		}
 	}
 
 	template <class ForwardIt, typename T>
@@ -206,24 +250,35 @@ namespace gpu
 	template <class ForwardIt, typename T, class BinaryPredicate>
 	GPU_DEVICE ForwardIt upper_bound(block_t g, ForwardIt first, ForwardIt last, const T& value, BinaryPredicate p)
 	{
-		return lower_bound(g, first, last, value, [&p](const auto& lhs, const auto& rhs) {
-			return !p(lhs, rhs);
-		});
+		return detail::upper_bound(g, first, last, value, p);
 	}
 
 	template <class BlockTile, class ForwardIt, typename T, class BinaryPredicate>
 	GPU_DEVICE ForwardIt upper_bound(BlockTile g, ForwardIt first, ForwardIt last, const T& value, BinaryPredicate p)
 	{
-		return lower_bound(g, first, last, value, [&p](const auto& lhs, const auto& rhs) {
-			return !p(lhs, rhs);
-		});
+		return detail::upper_bound(g, first, last, value, p);
 	}
 
 	template <class ForwardIt, typename T, class BinaryPredicate>
 	GPU_DEVICE GPU_CONSTEXPR ForwardIt upper_bound(ForwardIt first, ForwardIt last, const T& value, BinaryPredicate p)
 	{
-		return lower_bound(first, last, value, [&p](const auto& lhs, const auto& rhs) {
-			return !p(lhs, rhs);
-		});
+		ForwardIt it;
+		typename std::iterator_traits<ForwardIt>::difference_type count, step;
+		count = distance(first, last);
+ 
+		while (count > 0)
+		{
+			it = first; 
+			step = count / 2;
+			advance(it, step);
+			if (!comp(value, *it))
+			{
+				first = ++it;
+				count -= step + 1;
+			} 
+			else
+				count = step;
+		}
+		return first;
 	}
 }

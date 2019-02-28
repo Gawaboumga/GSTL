@@ -46,6 +46,31 @@ GPU_GLOBAL void test_binary_search_warp()
 	ENSURE(it == &in[(block_size * 3) / 4]);
 }
 
+GPU_GLOBAL void test_upper_bound_block()
+{
+	gpu::block_t block = gpu::this_thread_block();
+	gpu::block_tile_t<32> warp = gpu::tiled_partition<32>(block);
+
+	constexpr unsigned int block_size = 20;
+	GPU_SHARED gpu::array<int, block_size> in;
+
+	int value = 5;
+	gpu::fill(block, in.begin(), in.end(), value);
+	block.sync();
+	gpu::fill(block, &in[(block_size * 2) / 4], &in[(block_size * 3) / 4], value + 1);
+	block.sync();
+
+	auto it = gpu::upper_bound(warp, in.begin(), in.end(), value);
+	block.sync();
+
+	ENSURE(it == &in[(block_size * 2) / 4]);
+
+	it = gpu::upper_bound(block, in.begin(), in.end(), value);
+	block.sync();
+
+	ENSURE(it == &in[(block_size * 2) / 4]);
+}
+
 TEST_CASE("BINARY_SEARCH", "[BINARY_SEARCH][ALGORITHM]")
 {
 	SECTION("BLOCK")
@@ -62,5 +87,10 @@ TEST_CASE("BINARY_SEARCH", "[BINARY_SEARCH][ALGORITHM]")
 		CHECK(launch(test_binary_search_warp<256>));
 		CHECK(launch(test_binary_search_warp<4000>));
 		CHECK(launch(test_binary_search_warp<4096>));
+	}
+
+	SECTION("Upper bound")
+	{
+		CHECK(launch(test_upper_bound_block));
 	}
 }
