@@ -1,5 +1,7 @@
 #include <gstl/utility/swap.cuh>
 
+#include <utility>
+
 namespace gpu
 {
 	template <class ForwardIt1, class ForwardIt2>
