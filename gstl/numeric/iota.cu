@@ -1,4 +1,4 @@
-#include "iota.cuh"
+#include <gstl/numeric/iota.cuh>
 
 namespace gpu
 {
