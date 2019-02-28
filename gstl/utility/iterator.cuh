@@ -142,6 +142,9 @@ namespace gpu
 
 	template <class InputIt>  // constexpr in C++17
 	GPU_DEVICE GPU_CONSTEXPR InputIt next(InputIt x, typename std::iterator_traits<InputIt>::difference_type n = 1);
+
+	template <class BidirIt>
+	GPU_DEVICE GPU_CONSTEXPR BidirIt prev(BidirIt it, typename std::iterator_traits<BidirIt>::difference_type n = 1);
 }
 
 #include <gstl/utility/iterator.cu>

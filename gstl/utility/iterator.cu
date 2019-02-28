@@ -383,4 +383,11 @@ namespace gpu
 		advance(x, n);
 		return x;
 	}
+
+	template <class BidirIt>
+	GPU_DEVICE GPU_CONSTEXPR BidirIt prev(BidirIt it, typename std::iterator_traits<BidirIt>::difference_type n)
+	{
+		advance(it, -n);
+		return it;
+	}
 }
