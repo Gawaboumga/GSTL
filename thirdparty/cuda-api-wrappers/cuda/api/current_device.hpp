@@ -95,7 +95,7 @@ private:
 template <>
 class scoped_override_t<detail::assume_device_is_current> {
 public:
-	scoped_override_t(device::id_t  device) { }
+	scoped_override_t(device::id_t) { }
 	~scoped_override_t() { }
 };
 
@@ -114,4 +114,4 @@ public:
 } // namespace device
 } // namespace cuda
 
-#endif /* CUDA_API_WRAPPERS_CURRENT_DEVICE_HPP_ */
+#endif // CUDA_API_WRAPPERS_CURRENT_DEVICE_HPP_

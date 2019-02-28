@@ -1,5 +1,5 @@
 /**
- * @file profiling.h
+ * @file profiling.hpp
  *
  * @brief wrappers for the CUDA profiler API functions,
  * and convenience RAII classes for profiler-output-marked
@@ -7,8 +7,8 @@
  *
  */
 #pragma once
-#ifndef CUDA_API_WRAPPERS_PROFILING_H_
-#define CUDA_API_WRAPPERS_PROFILING_H_
+#ifndef CUDA_API_WRAPPERS_PROFILING_HPP_
+#define CUDA_API_WRAPPERS_PROFILING_HPP_
 
 #include <cuda/api/types.hpp>
 #include <cstdint>
@@ -145,11 +145,11 @@ namespace naming {
  * for example, by `GetCurrentThreadId()`)
  * @param[in] name The string identifier to use for the specified thread
  */
-void name_host_thread(uint32_t thread_id, const std::string& name);
-void name_host_thread(uint32_t thread_id, const std::wstring& name);
+template <typename CharT>
+void name_host_thread(uint32_t thread_id, const std::basic_string<CharT>& name);
 #if defined(__unix__) || defined(_WIN32)
-void name_this_thread(const std::string& name);
-void name_this_thread(const std::wstring& name);
+template <typename CharT>
+void name_this_thread(const std::basic_string<CharT>& name);
 #endif
 
 //void name_device_stream(device::id_t  device, stream::id_t stream);
@@ -160,4 +160,4 @@ void name_this_thread(const std::wstring& name);
 
 } // namespace cuda
 
-#endif /* CUDA_API_WRAPPERS_PROFILING_H_ */
+#endif // CUDA_API_WRAPPERS_PROFILING_HPP_
