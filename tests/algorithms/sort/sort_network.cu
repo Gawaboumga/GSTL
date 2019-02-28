@@ -1,5 +1,7 @@
 #include <gstl/algorithms/sort/bitonic_sort.cuh>
+#include <gstl/algorithms/sort/odd_even_merge_sort.cuh>
 #include <gstl/algorithms/sort/odd_even_sort.cuh>
+#include <gstl/algorithms/sort/shell_sort.cuh>
 #include <Catch2/catch.hpp>
 
 #include <base_test.cuh>
@@ -50,7 +52,29 @@ GPU_GLOBAL void test_sort_network_block()
 		gpu::copy(data.begin(), data.end(), copy.begin());
 		block.sync();
 
+		gpu::odd_even_merge_sort(block, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
+
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
+
 		gpu::odd_even_sort(block, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
+
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
+
+		gpu::shell_sort(block, copy.begin(), copy.end());
 		block.sync();
 
 		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
@@ -86,7 +110,31 @@ GPU_GLOBAL void test_sort_network_warp()
 		block.sync();
 
 		if (block.thread_rank() < warp.size())
+			gpu::odd_even_merge_sort(warp, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
+
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
+
+		if (block.thread_rank() < warp.size())
 			gpu::odd_even_sort(warp, copy.begin(), copy.end());
+		block.sync();
+
+		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
+		block.sync();
+	}
+
+	{
+		gpu::copy(data.begin(), data.end(), copy.begin());
+		block.sync();
+
+		if (block.thread_rank() < warp.size())
+			gpu::shell_sort(warp, copy.begin(), copy.end());
 		block.sync();
 
 		ENSURE(gpu::is_sorted(block, copy.begin(), copy.end()));
@@ -100,15 +148,15 @@ TEST_CASE("SORT_NETWORK", "[SORT_NETWORK][ALGORITHM]")
 	{
 		CHECK(launch(test_sort_network_block<200>));
 		CHECK(launch(test_sort_network_block<256>));
-		CHECK(launch(test_sort_network_block<2000>));
-		CHECK(launch(test_sort_network_block<2048>));
+		CHECK(launch(test_sort_network_block<1000>));
+		CHECK(launch(test_sort_network_block<1024>));
 	}
 
 	SECTION("WARP")
 	{
 		CHECK(launch(test_sort_network_warp<200>));
 		CHECK(launch(test_sort_network_warp<256>));
-		CHECK(launch(test_sort_network_warp<2000>));
-		CHECK(launch(test_sort_network_warp<2048>));
+		CHECK(launch(test_sort_network_warp<1000>));
+		CHECK(launch(test_sort_network_warp<1024>));
 	}
 }
