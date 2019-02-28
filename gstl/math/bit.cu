@@ -27,7 +27,7 @@ namespace gpu
 			return 0;
 
 		constexpr auto number_of_digits = numeric_limits<T>::digits;
-		return 1u << (number_of_digits - clz(x >> 1u));
+		return 1u << (number_of_digits - clz(x));
 	}
 
 	template <typename T>
