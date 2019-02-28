@@ -9,8 +9,8 @@ namespace gpu
 {
 	namespace detail
 	{
-		template <class Thread, class RandomIt, class Compare>
-		GPU_DEVICE void odd_even_sort(Thread g, RandomIt first, RandomIt last, Compare comp, arbitrary_tag tag)
+		template <class RandomIt, class Compare>
+		GPU_DEVICE void odd_even_sort(block_t g, RandomIt first, RandomIt last, Compare comp, arbitrary_tag tag)
 		{
 			GPU_SHARED int exch0;
 			GPU_SHARED int exch1;
@@ -54,6 +54,45 @@ namespace gpu
 
 				if (g.thread_rank() == 0)
 					trips = 1;
+				g.sync();
+			}
+		}
+
+		template <class RandomIt, class Compare, unsigned int tile_sz>
+		GPU_DEVICE void odd_even_sort(block_tile_t<tile_sz> g, RandomIt first, RandomIt last, Compare comp, arbitrary_tag tag)
+		{
+			int len = distance(first, last);
+			bool first_pass = true;
+			bool values_to_swap = true;
+
+			while (values_to_swap)
+			{
+				values_to_swap = false;
+
+				range(g, 0, len - 1, 2, [&](offset_t index) {
+					if (comp(*(first + index + 1), *(first + index)))
+					{
+						iter_swap(first + index, first + index + 1);
+						values_to_swap = true;
+					}
+				});
+
+				if (any(g, values_to_swap) || first_pass)
+				{
+					values_to_swap = false;
+
+					range(g, 1, len - 1, 2, [&](offset_t index) {
+						if (comp(*(first + index + 1), *(first + index)))
+						{
+							iter_swap(first + index, first + index + 1);
+							values_to_swap = true;
+						}
+					});
+				}
+
+				if (any(g, values_to_swap))
+					values_to_swap = true;
+				first_pass = false;
 				g.sync();
 			}
 		}
