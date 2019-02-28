@@ -1,4 +1,4 @@
-#include <gstl/algorithms/fill.cuh>
+#include <gstl/algorithms/copy.cuh>
 
 #include <gstl/numeric/exclusive_scan.cuh>
 
