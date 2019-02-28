@@ -22,4 +22,23 @@ namespace gpu
 		while (first != last)
 			*first++ = g();
 	}
+
+	template <class RandomIt, class Size, class Generator>
+	GPU_DEVICE void generate_n(block_t g, RandomIt first, Size size, Generator gen)
+	{
+		detail::generate_n(g, first, size, gen);
+	}
+
+	template <class BlockTile, class RandomIt, class Size, class Generator>
+	GPU_DEVICE void generate_n(BlockTile g, RandomIt first, Size size, Generator gen)
+	{
+		detail::generate_n(g, first, size, gen);
+	}
+
+	template <class ForwardIt, class Size, class Generator>
+	GPU_DEVICE GPU_CONSTEXPR void generate_n(ForwardIt first, Size size, Generator g)
+	{
+		for (Size i = 0; i != size; ++i)
+			*first++ = g();
+	}
 }

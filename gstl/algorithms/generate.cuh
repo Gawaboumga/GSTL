@@ -15,6 +15,15 @@ namespace gpu
 
 	template <class ForwardIt, class Generator>
 	GPU_DEVICE GPU_CONSTEXPR void generate(ForwardIt first, ForwardIt last, Generator g);
+
+	template <class RandomIt, class Size, class Generator>
+	GPU_DEVICE void generate_n(block_t g, RandomIt first, Size size, Generator gen);
+
+	template <class BlockTile, class RandomIt, class Size, class Generator>
+	GPU_DEVICE void generate_n(BlockTile g, RandomIt first, Size size, Generator gen);
+
+	template <class ForwardIt, class Size, class Generator>
+	GPU_DEVICE GPU_CONSTEXPR void generate_n(ForwardIt first, Size size, Generator g);
 }
 
 #include <gstl/algorithms/generate.cu>
