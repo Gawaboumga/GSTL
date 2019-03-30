@@ -17,6 +17,11 @@ namespace gpu
 	template <class BlockTile>
 	GPU_DEVICE inline bool any(BlockTile g, bool value);
 
+	GPU_DEVICE inline unsigned int count(block_t g, bool value);
+
+	template <class BlockTile>
+	GPU_DEVICE inline unsigned int count(BlockTile g, bool value);
+
 	GPU_DEVICE inline offset_t first_index(block_t g, bool value, offset_t from = 0u);
 
 	template <class BlockTile>

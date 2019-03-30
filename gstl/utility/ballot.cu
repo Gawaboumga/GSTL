@@ -42,6 +42,14 @@ namespace gpu
 				return g.shfl(var, thid);
 			}
 		};
+
+		template <class BlockTile, typename T>
+		GPU_DEVICE inline T sum(BlockTile g, T value)
+		{
+			for (int mask = g.size() / 2; mask > 0; mask >>= 1)
+				value += g.shfl_xor(value, mask);
+			return value;
+		}
 	}
 
 	GPU_DEVICE inline bool all(block_t g, bool value)
@@ -96,6 +104,33 @@ namespace gpu
 	GPU_DEVICE inline bool any(BlockTile g, bool value)
 	{
 		return g.any(value);
+	}
+
+	GPU_DEVICE inline unsigned int count(block_t g, bool value)
+	{
+		GPU_SHARED gpu::array<unsigned int, MAX_NUMBER_OF_WARPS_PER_BLOCK> results;
+
+		offset_t warp_id = g.thread_rank() / MAX_NUMBER_OF_THREADS_PER_WARP;
+		block_tile_t<MAX_NUMBER_OF_THREADS_PER_WARP> warp = tiled_partition<MAX_NUMBER_OF_THREADS_PER_WARP>(g);
+		auto warp_result = count(warp, value);
+		if (warp.thread_rank() == 0)
+			results[warp_id] = warp_result;
+		g.sync();
+
+		auto warp_results = 0;
+		offset_t number_of_warps = g.size() / MAX_NUMBER_OF_THREADS_PER_WARP;
+		offset_t local_warp_id = g.thread_rank() % MAX_NUMBER_OF_THREADS_PER_WARP;
+		if (local_warp_id < number_of_warps)
+			warp_results = results[local_warp_id];
+		g.sync();
+
+		return detail::sum(warp, warp_results);
+	}
+
+	template <class BlockTile>
+	GPU_DEVICE inline unsigned int count(BlockTile g, bool value)
+	{
+		return popc(g.ballot(value));
 	}
 
 	GPU_DEVICE inline offset_t first_index(block_t g, bool value, offset_t from)
