@@ -4,19 +4,56 @@
 
 namespace gpu
 {
+	namespace detail
+	{
+		template <class RandomIt, class ForwardIt>
+		GPU_DEVICE ForwardIt standard_move(block_t g, RandomIt first, RandomIt last, ForwardIt d_first)
+		{
+			offset_t thid = g.thread_rank();
+			auto len = distance(first, last);
+
+			while (thid < len)
+			{
+				*(d_first + thid) = std::move(*(first + thid));
+				thid += g.size();
+			}
+
+			return d_first + len;
+		}
+
+		template <class RandomIt, class ForwardIt>
+		GPU_DEVICE ForwardIt overlapping_move(block_t g, RandomIt first, RandomIt last, ForwardIt d_first)
+		{
+			offset_t thid = g.thread_rank();
+			offset_t offset = 0;
+			auto len = distance(first, last);
+
+			while (offset < len)
+			{
+				// All threads of the block should sync at the same time
+				typename std::iterator_traits<RandomIt>::value_type tmp;
+				if (offset + thid < len)
+					tmp = std::move(*(first + offset + thid));
+				g.sync();
+				if (offset + thid < len)
+					*(d_first + offset + thid) = tmp;
+				g.sync();
+				offset += g.size();
+			}
+
+			return d_first + len;
+		}
+	}
+
+	// If we are far enough, we could remove
 	template <class RandomIt, class ForwardIt>
 	GPU_DEVICE ForwardIt move(block_t g, RandomIt first, RandomIt last, ForwardIt d_first)
 	{
-		offset_t thid = g.thread_rank();
 		auto len = distance(first, last);
-
-		while (thid < len)
-		{
-			*(d_first + thid) = std::move(*(first + thid));
-			thid += g.size();
-		}
-
-		return d_first + len;
+		if (d_first + len > first)
+			return detail::overlapping_move(g, first, last, d_first);
+		else
+			return detail::standard_move(g, first, last, d_first);
 	}
 
 	template <class BlockTile, class RandomIt, class ForwardIt>
