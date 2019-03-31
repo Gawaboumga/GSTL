@@ -52,10 +52,11 @@ namespace gpu
 			auto current_device = cuda::device::current::get();
 			unsigned int blocks_per_grid = 32u;
 			unsigned int threads_per_block = 1024u;
+			cuda::launch_configuration_t configuration{ blocks_per_grid, threads_per_block };
 			using result_type = typename std::remove_reference<decltype(*first)>::type;
-			auto d_results = cuda::memory::device::make_unique<result_type[]>(current_device, 32u);
+			auto d_results = cuda::memory::device::make_unique<result_type[]>(current_device, blocks_per_grid);
 
-			kernel::reduce(first, last, d_results.get());
+			kernel::reduce_to_buffer(configuration, first, last, d_results.get());
 			kernel::sync();
 
 			launch_kernel(

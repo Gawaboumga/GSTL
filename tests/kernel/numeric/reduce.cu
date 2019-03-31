@@ -28,12 +28,13 @@ TEST_CASE("KERNEL REDUCE", "[KERNEL_REDUCE][NUMERIC]")
 		cuda::memory::copy(d_one.get(), h_one.get(), sizeof(int));
 
 		gpu::kernel::fill(d_input.get(), d_input.get() + capacity, d_one.get());
-		unsigned int buffer_size = gpu::kernel::reduce(d_input.get(), d_input.get() + capacity, d_buffer.get());
+		cuda::launch_configuration_t configuration{ number_of_blocks, 1024 };
+		gpu::kernel::reduce_to_buffer(configuration, d_input.get(), d_input.get() + capacity, d_buffer.get());
 
 		gpu::kernel::launch_kernel(
 			test_kernel_reduce,
 			cuda::launch_configuration_t{ 1u, 1024u },
-			d_buffer.get(), buffer_size, capacity
+			d_buffer.get(), number_of_blocks, capacity
 		);
 	}
 }
