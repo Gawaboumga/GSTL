@@ -2,77 +2,79 @@
 
 namespace gpu
 {
+#if defined(GPU_DEBUG_ALLOCATED_MEMORY)
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::iterator allocated_memory<T>::begin() noexcept
+	GPU_DEVICE typename allocated_memory<T>::iterator allocated_memory<T>::begin() noexcept
 	{
 		return iterator(m_start);
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_iterator allocated_memory<T>::begin() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_iterator allocated_memory<T>::begin() const noexcept
 	{
 		return const_iterator(m_start);
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_iterator allocated_memory<T>::cbegin() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_iterator allocated_memory<T>::cbegin() const noexcept
 	{
 		return const_iterator(m_start);
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::iterator allocated_memory<T>::end() noexcept
+	GPU_DEVICE typename allocated_memory<T>::iterator allocated_memory<T>::end() noexcept
 	{
 		return iterator(m_end);
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_iterator allocated_memory<T>::end() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_iterator allocated_memory<T>::end() const noexcept
 	{
 		return const_iterator(m_end);
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_iterator allocated_memory<T>::cend() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_iterator allocated_memory<T>::cend() const noexcept
 	{
 		return const_iterator(m_end);
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::reverse_iterator allocated_memory<T>::rbegin() noexcept
+	GPU_DEVICE typename allocated_memory<T>::reverse_iterator allocated_memory<T>::rbegin() noexcept
 	{
 		return reverse_iterator(end());
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_reverse_iterator allocated_memory<T>::rbegin() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_reverse_iterator allocated_memory<T>::rbegin() const noexcept
 	{
 		return const_reverse_iterator(end());
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_reverse_iterator allocated_memory<T>::crbegin() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_reverse_iterator allocated_memory<T>::crbegin() const noexcept
 	{
 		return const_reverse_iterator(end());
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::reverse_iterator allocated_memory<T>::rend() noexcept
+	GPU_DEVICE typename allocated_memory<T>::reverse_iterator allocated_memory<T>::rend() noexcept
 	{
 		return reverse_iterator(begin());
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_reverse_iterator allocated_memory<T>::rend() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_reverse_iterator allocated_memory<T>::rend() const noexcept
 	{
 		return const_reverse_iterator(begin());
 	}
 
 	template <typename T>
-	GPU_DEVICE allocated_memory<T>::const_reverse_iterator allocated_memory<T>::crend() const noexcept
+	GPU_DEVICE typename allocated_memory<T>::const_reverse_iterator allocated_memory<T>::crend() const noexcept
 	{
 		return const_reverse_iterator(begin());
 	}
+#endif // GPU_DEBUG_ALLOCATED_MEMORY
 
 	template <typename T>
 	GPU_DEVICE allocated_memory<T>::allocated_memory(std::nullptr_t) noexcept :
@@ -85,6 +87,13 @@ namespace gpu
 	{
 	}
 
+#if !defined(GPU_DEBUG_ALLOCATED_MEMORY)
+	template <typename T>
+	GPU_DEVICE allocated_memory<T>::allocated_memory(T* ptr) noexcept :
+		m_ptr{ ptr }
+	{
+	}
+#endif // GPU_DEBUG_ALLOCATED_MEMORY
 
 	template <typename T>
 	GPU_DEVICE allocated_memory<T>::allocated_memory(block_t g, T* ptr, size_type count) noexcept :
@@ -117,7 +126,7 @@ namespace gpu
 		m_start{ ptr },
 		m_end{ ptr + count + 1 }
 	#else
-		m_ptr{ ptr + 1 }
+		m_ptr{ ptr }
 	#endif // GPU_DEBUG_ALLOCATED_MEMORY
 	{
 		post_condition();

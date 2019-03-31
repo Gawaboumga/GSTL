@@ -26,6 +26,7 @@ namespace gpu
 			using iterator_category = std::random_access_iterator_tag;
 
 		public:
+		#if defined(GPU_DEBUG_ALLOCATED_MEMORY)
 			GPU_DEVICE iterator begin() noexcept;
 			GPU_DEVICE const_iterator begin() const noexcept;
 			GPU_DEVICE const_iterator cbegin() const noexcept;
@@ -39,11 +40,15 @@ namespace gpu
 			GPU_DEVICE reverse_iterator rend() noexcept;
 			GPU_DEVICE const_reverse_iterator rend() const noexcept;
 			GPU_DEVICE const_reverse_iterator crend() const noexcept;
+		#endif // GPU_DEBUG_ALLOCATED_MEMORY
 
 		public:
 			allocated_memory() noexcept = default;
 			allocated_memory(const allocated_memory&) noexcept = default;
 			GPU_DEVICE allocated_memory(std::nullptr_t) noexcept;
+		#if !defined(GPU_DEBUG_ALLOCATED_MEMORY)
+			GPU_DEVICE allocated_memory(T* ptr) noexcept;
+		#endif // GPU_DEBUG_ALLOCATED_MEMORY
 			GPU_DEVICE allocated_memory(block_t g, T* ptr, size_type count) noexcept;
 			template <class BlockTile>
 			GPU_DEVICE allocated_memory(BlockTile g, T* ptr, size_type count) noexcept;
