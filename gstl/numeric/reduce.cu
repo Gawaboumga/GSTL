@@ -63,8 +63,7 @@ namespace gpu
 			g.sync();
 
 			offset_t number_of_actives_warps = (len + MAX_NUMBER_OF_WARPS_PER_BLOCK - 1) / MAX_NUMBER_OF_WARPS_PER_BLOCK;
-			if (g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK < number_of_actives_warps)
-				thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
+			thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
 			thread_result = reduce(tile32, thread_result, binary_op, number_of_actives_warps - 1);
 			return binary_op(thread_result, init);
 		}
@@ -84,8 +83,7 @@ namespace gpu
 			g.sync();
 
 			offset_t number_of_actives_warps = g.size() / MAX_NUMBER_OF_WARPS_PER_BLOCK;
-			if (g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK < number_of_actives_warps)
-				thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
+			thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
 			thread_result = reduce(tile32, thread_result, binary_op, number_of_actives_warps - 1);
 			return binary_op(thread_result, init);
 		}
@@ -163,10 +161,7 @@ namespace gpu
 		g.sync();
 
 		offset_t number_of_actives_warps = g.size() / MAX_NUMBER_OF_WARPS_PER_BLOCK;
-		T thread_result;
-		if (g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK < number_of_actives_warps)
-			thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
-		warp.sync();
+		T thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
 		return reduce(warp, thread_result, binary_op, number_of_actives_warps - 1);
 	}
 
@@ -190,10 +185,7 @@ namespace gpu
 		g.sync();
 
 		offset_t number_of_actives_warps = maximal_lane / MAX_NUMBER_OF_WARPS_PER_BLOCK;
-		T thread_result;
-		if (g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK < number_of_actives_warps)
-			thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
-		warp.sync();
+		T thread_result = shared_data[g.thread_rank() % MAX_NUMBER_OF_WARPS_PER_BLOCK];
 		return reduce(warp, thread_result, binary_op, number_of_actives_warps - 1);
 	}
 
