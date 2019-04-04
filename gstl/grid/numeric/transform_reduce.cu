@@ -17,7 +17,7 @@ namespace gpu
 		offset_t len = distance(first1, last1);
 		offset_t thid = g.thread_rank();
 
-		if (g.size() < len)
+		if (len < g.size())
 		{
 			T thread_result;
 			if (g.thread_rank() < len)
@@ -65,7 +65,7 @@ namespace gpu
 		offset_t len = distance(first, last);
 		offset_t thid = g.thread_rank();
 
-		if (g.size() < len)
+		if (len < g.size())
 		{
 			T thread_result;
 			if (g.thread_rank() < len)
