@@ -8,8 +8,8 @@
 
 #include <hayai.hpp>
 
-constexpr unsigned int NUMBER_OF_RUNS = 30;
-constexpr unsigned int NUMBER_OF_ITERATIONS = 30;
+constexpr unsigned int NUMBER_OF_RUNS = 1;
+constexpr unsigned int NUMBER_OF_ITERATIONS = 1;
 constexpr unsigned int NUMBER_OF_ELEMENTS = 1 << 28;
 constexpr unsigned int BLOCKS_PER_GRID = 256;
 constexpr unsigned int THREADS_PER_BLOCK = 1024;
