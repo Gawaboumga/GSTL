@@ -10,9 +10,10 @@ It is still in an early stage but has a simple API that aims to simplify the GPU
 
 ## Instructions to compile
 
+With MSVC 15.9.11 and CMake 3.14.2
  - mkdir build
  - cd build
- - cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
+ - cmake -G "Visual Studio 15 2017" -A x64 ..
 
 ## Thanks
 

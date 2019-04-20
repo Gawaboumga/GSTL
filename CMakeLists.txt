@@ -28,7 +28,9 @@ set(THIRDPARTY_INCLUDES
 	"${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/moderngpu/src/"
 	"${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/hayai/src/"
 )
+set(BENCHMARK_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/benchmark/")
 set(TEST_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/tests/")
 
+add_subdirectory(${BENCHMARK_FOLDER})
 add_subdirectory(${TEST_FOLDER})
 
